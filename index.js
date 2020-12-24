@@ -23,8 +23,7 @@
 // };
 // let currentLevel = 1;
 
-let levelData = [
-    {
+let levelData = [{
         hordeNum: 5,
         level: 0
     },
@@ -99,10 +98,10 @@ let gameArrays = {
     updateHistory: function () {
         this.history[this.currentLevel].hordeArr = this.currentHordeArr;
     },
-    updateLevel: function(currentLevel) {
+    updateLevel: function (currentLevel) {
         this.currentLevel = currentLevel;
     },
-    spawnHorde: function() {
+    spawnHorde: function () {
         // function spawnHorde(hordeNum, level, levelHordeArr, teleHordeArr, ammoArr) {
         let hordeArr = [];
         for (let i = 0; i < this.levelData[this.currentLevel].hordeNum; i++) {
@@ -115,7 +114,7 @@ let gameArrays = {
         };
         return hordeArr;
     },
-    updateHorde: function(indexToRemove, teleportOrDestroyString) {
+    updateHorde: function (indexToRemove, teleportOrDestroyString) {
         if (teleportOrDestroyString === "destroy") {
             this.currentHordeArr.splice(indexToRemove, 1);
 
@@ -126,13 +125,13 @@ let gameArrays = {
             console.log("Action is undefined!");
         };
     },
-    combineHordes: function() {
+    combineHordes: function () {
         let combinedArr = this.levelHordeArr.concat(this.teleportedHordeArr);
         // return combinedArr;
         this.currentHordeArr = combinedArr;
     },
     // Enter new level:
-    enterLevel: function(level) {
+    enterLevel: function (level) {
         console.log(`Entering Level: ${level}.`);
 
         this.updateLevel(level);
@@ -145,7 +144,7 @@ let gameArrays = {
         console.log(this.currentHordeArr);
         this.updateHistory();
     },
-    endLevel: function() {
+    endLevel: function () {
         console.log(`Ending Level: ${this.currentLevel}.`);
 
         this.savedHorde = this.teleportedHordeArr;
@@ -166,25 +165,25 @@ let gameArrays = {
         this.levelHordeArr = [];
         this.updateHistory();
     },
-    addLevelsLived: function() {
-        for(let i = 0; i < this.savedHorde.length; i++) {
+    addLevelsLived: function () {
+        for (let i = 0; i < this.savedHorde.length; i++) {
             this.savedHorde[i].levelsLived.push(this.currentLevel);
         };
     },
-    checkLevel: function(monsterID) {
-        for(let i = 0; i < this.currentHordeArr.length; i++) {
+    checkLevel: function (monsterID) {
+        for (let i = 0; i < this.currentHordeArr.length; i++) {
             // console.log(this.currentHordeArr[i]);
             if (this.currentHordeArr[i].id === monsterID && this.currentHordeArr[i].levelsLived.length >= 1) {
                 return this.currentHordeArr[i].levelsLived;
             };
         };
     },
-    removeSavePoint: function() {
+    removeSavePoint: function () {
         for (let i = 0; i < this.currentHordeArr.length; i++) {
             // console.log(this.currentHordeArr[i]);
             if (this.currentHordeArr[i].levelsLived.length >= 1) {
                 let index = this.currentHordeArr[i].levelsLived.indexOf(this.currentLevel);
-                    this.currentHordeArr[i].levelsLived.splice(index, 1);
+                this.currentHordeArr[i].levelsLived.splice(index, 1);
             };
         };
     }
@@ -225,58 +224,100 @@ gameArrays.enterLevel(2);
 gameArrays.updateHorde(5, "teleport");
 gameArrays.endLevel();
 
-// gameArrays.updateLevel(1);
-// gameArrays.levelHordeArr = gameArrays.spawnHorde();
-// console.log(gameArrays.levelHordeArr);
+let startBtn = document.querySelector(".startBtn");
+startBtn.addEventListener("click", startLevel);
+// testing event loop:
+function startLevel() {
+    let count = 0,
+        deployed = 10;
 
-// Create level horde and assign data in gameArrays:
-// let hordeArr = spawnHorde(levelData[1].hordeNum, levelData[1].level);
-// gameArrays.levelHordeArr = hordeArr;
-// console.log(hordeArr);
+        let gameLoop = setInterval(bubbleBlower, 1000);
 
-// gameArrays.teleportedHordeArr = gameArrays.savedHorde;
-// Combine level array with teleported array and assign to the current array:
-// gameArrays.currentHordeArr = gameArrays.combineHordes(gameArrays.levelHordeArr, gameArrays.teleportedHordeArr);
+        function bubbleBlower() {
 
-// function spawnHorde(hordeNum, level) {
-// // function spawnHorde(hordeNum, level, levelHordeArr, teleHordeArr, ammoArr) {
-//     let hordeArr = [];
-//     for (let i = 0; i < hordeNum; i++) {
-//         let monster = {
-//             id: `horde-${level}-${i}`,
-//             level, level,
-//             levelsLived:[
-//                 level
-//             ]
-//         };
-//         hordeArr.push(monster);
-//     };
-//     return hordeArr;
-// };
+            if (count < deployed) {
+                
+                let size = Math.random() * 30 + 15;
+                let left = Math.random() * 600 + 40;
+                let top = Math.random() * 500 + 40;
+                let color = "#" + Math.floor(Math.random() * 16777215).toString(16).slice(2, 8).toUpperCase();
+    
+                let gamescreen = document.querySelector(".game-screen");
+                let bubble = document.createElement("div");
+                let bubbleID = `bubble-${count}`;
+                bubble.id = bubbleID;
+                bubble.classList.add("enemy", "bubble");
+    
+                gamescreen.append(bubble);
+    
+                let newBubble = document.getElementById(bubbleID);
+                newBubble.style.height = `${size}px`;
+                newBubble.style.width = `${size}px`;
+                newBubble.style.left = `${left}px`;
+                newBubble.style.top = `${top}px`;
+                newBubble.style.backgroundColor = color;
+    
+                count++
 
-// function updateHorde(currentHordeArr, indexToRemove, teleportOrDestroyString) {
-// function updateHorde(indexToRemove, teleportOrDestroyString) {
-//     if("destroy") {
+            } else {
+                clearInterval(gameLoop);
+                alert("Done!");
+            };
+        };
+    };
 
-//     } else if ("teleport") {
+    // gameArrays.updateLevel(1);
+    // gameArrays.levelHordeArr = gameArrays.spawnHorde();
+    // console.log(gameArrays.levelHordeArr);
 
-//     } else {
-//         console.log("Action is undefined!"); 
-//     };
-// };
+    // Create level horde and assign data in gameArrays:
+    // let hordeArr = spawnHorde(levelData[1].hordeNum, levelData[1].level);
+    // gameArrays.levelHordeArr = hordeArr;
+    // console.log(hordeArr);
 
-// function destroy(hordeArr, indexToDestroy) {
+    // gameArrays.teleportedHordeArr = gameArrays.savedHorde;
+    // Combine level array with teleported array and assign to the current array:
+    // gameArrays.currentHordeArr = gameArrays.combineHordes(gameArrays.levelHordeArr, gameArrays.teleportedHordeArr);
 
-// };
+    // function spawnHorde(hordeNum, level) {
+    // // function spawnHorde(hordeNum, level, levelHordeArr, teleHordeArr, ammoArr) {
+    //     let hordeArr = [];
+    //     for (let i = 0; i < hordeNum; i++) {
+    //         let monster = {
+    //             id: `horde-${level}-${i}`,
+    //             level, level,
+    //             levelsLived:[
+    //                 level
+    //             ]
+    //         };
+    //         hordeArr.push(monster);
+    //     };
+    //     return hordeArr;
+    // };
 
-// function teleport(currentHordeArr, indexToTeleport) {
-//     let teleportedHorde = [];
+    // function updateHorde(currentHordeArr, indexToRemove, teleportOrDestroyString) {
+    // function updateHorde(indexToRemove, teleportOrDestroyString) {
+    //     if("destroy") {
 
-//     return teleportedHorde;
-// };
+    //     } else if ("teleport") {
 
-// function combineHordes(levelHordeArr, teleportedHordeArr) {
-//     let combinedArr = levelHordeArr.concat(teleportedHordeArr);
-//     return combinedArr;
-// };
-// levelHordeArr = newHorde;
+    //     } else {
+    //         console.log("Action is undefined!"); 
+    //     };
+    // };
+
+    // function destroy(hordeArr, indexToDestroy) {
+
+    // };
+
+    // function teleport(currentHordeArr, indexToTeleport) {
+    //     let teleportedHorde = [];
+
+    //     return teleportedHorde;
+    // };
+
+    // function combineHordes(levelHordeArr, teleportedHordeArr) {
+    //     let combinedArr = levelHordeArr.concat(teleportedHordeArr);
+    //     return combinedArr;
+    // };
+    // levelHordeArr = newHorde;
