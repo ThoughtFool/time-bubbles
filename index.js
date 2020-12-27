@@ -190,10 +190,12 @@ let gameArrays = {
 };
 
 // Logic Tests:
+//////////////////////// LEVEL 00 /////////////////////////////////
 gameArrays.enterLevel(0);
 gameArrays.updateHorde(3, "teleport");
 gameArrays.endLevel();
 
+//////////////////////// LEVEL 01 /////////////////////////////////
 gameArrays.enterLevel(1);
 gameArrays.updateHorde(4, "teleport");
 gameArrays.updateHorde(3, "teleport");
@@ -201,31 +203,39 @@ gameArrays.updateHorde(3, "destroy");
 gameArrays.updateHorde(1, "teleport");
 gameArrays.endLevel();
 
+//////////////////////// LEVEL 02 /////////////////////////////////
 gameArrays.enterLevel(2);
 gameArrays.updateHorde(0, "teleport");
 gameArrays.updateHorde(2, "teleport");
 gameArrays.endLevel();
 
+//////////////////////// LEVEL 03 /////////////////////////////////
 gameArrays.enterLevel(3);
 gameArrays.updateHorde(0, "teleport");
 gameArrays.updateHorde(2, "teleport");
 
+//////////////////////// CHOOSE SAVED LEVEL /////////////////////////////////
 console.log("checkLevel function:");
 let timeSave = gameArrays.checkLevel("horde-0-3");
 let lastTimeSave = timeSave[timeSave.length - 1];
 console.log("lastTimeSave");
 console.log(lastTimeSave);
 
+//////////////////////// RETURN TO LEVEL /////////////////////////////////
 gameArrays.returnLevel(lastTimeSave);
 gameArrays.updateHorde(0, "teleport");
 gameArrays.endLevel();
 
-gameArrays.enterLevel(2);
+//////////////////////// LEVEL 03 /////////////////////////////////
+gameArrays.enterLevel(3);
 gameArrays.updateHorde(5, "teleport");
 gameArrays.endLevel();
 
+//////////////////////// Generate Bubbles /////////////////////////////////
 let startBtn = document.querySelector(".startBtn");
 startBtn.addEventListener("click", startLevel);
+const bubbleArray = [];
+
 // testing event loop:
 function startLevel() {
     let count = 0,
@@ -242,7 +252,7 @@ function startLevel() {
                 let top = Math.random() * 500 + 40;
                 let color = "#" + Math.floor(Math.random() * 16777215).toString(16).slice(2, 8).toUpperCase();
     
-                let gamescreen = document.querySelector(".game-screen");
+                let gamescreen = document.querySelector("#game-screen");
                 let bubble = document.createElement("div");
                 let bubbleID = `bubble-${count}`;
                 bubble.id = bubbleID;
@@ -256,6 +266,13 @@ function startLevel() {
                 newBubble.style.left = `${left}px`;
                 newBubble.style.top = `${top}px`;
                 newBubble.style.backgroundColor = color;
+
+                // (xPos, yPos, radius, dx, dy, id)
+                let bubbleObject = new bubbleBuilder(left, top, size / 2, 2, -2, bubbleID);
+                bubbleArray.push(bubbleObject);
+
+                console.log("bubbleObject");
+                console.log(bubbleObject);
     
                 count++
 
@@ -264,7 +281,7 @@ function startLevel() {
                 alert("Done!");
             };
         };
-    };
+    // };
 
     // gameArrays.updateLevel(1);
     // gameArrays.levelHordeArr = gameArrays.spawnHorde();
@@ -321,3 +338,56 @@ function startLevel() {
     //     return combinedArr;
     // };
     // levelHordeArr = newHorde;
+
+    function bubbleBuilder(xPos, yPos, radius, dx, dy, id) {
+        this.xPos = xPos;
+        this.yPos = yPos;
+        this.radius = radius;
+        this.dx = dx; // left or right
+        this.dy = dy; // up or down
+        this.id = id;
+        this.updatePos = function (elemIDTouched) {
+            let elemTouched = document.getElementById(elemIDTouched);
+            let elemCoords = elemTouched.getBoundingClientRect();
+
+            this.xPos += this.dx;
+            this.yPos += this.dy;
+
+            console.log(this.xPos);
+            console.log(this.yPos);
+
+            if (this.xPos + this.dx > elemCoords.width - this.radius || this.xPos + this.dx < this.radius) {
+                this.dx = -this.dx;
+            };
+            if (yPos + this.dy > elemCoords.height - this.radius || yPos + this.dy < this.radius) {
+                this.dy = -this.dy;
+            };
+        };
+        this.movePos = function () {
+            let bubbleElem = document.getElementById(this.id);
+            bubbleElem.style.left = `${this.xPos}px`;
+            bubbleElem.style.top = `${this.yPos}px`;
+        };
+    };
+
+    // let bubbleObject = new bubbleBuilder(10, 10, 5, 2, -2, "bubble-0");
+    // console.log(bubbleObject);
+    
+    function gameLoopTest() { // draw() 
+        // draw the dom elems:
+        let gamescreen = document.getElementById("game-screen");
+        let gamescreenCoords = gamescreen.getBoundingClientRect();
+        
+        let xPos = gamescreenCoords.width / 2;
+        let yPos = gamescreenCoords.height - 30;
+
+        
+        for (let i = 0; i < bubbleArray.length; i++) {
+            console.log("bubbleArray[i].updatePos('game-screen')");
+            bubbleArray[i].updatePos("game-screen");
+            bubbleArray[i].movePos();
+        };
+    };
+
+    setInterval(gameLoopTest, 150);
+};
