@@ -241,46 +241,46 @@ function startLevel() {
     let count = 0,
         deployed = 10;
 
-        let gameLoop = setInterval(bubbleBlower, 1000);
+    let gameLoop = setInterval(bubbleBlower, 1000);
 
-        function bubbleBlower() {
+    function bubbleBlower() {
 
-            if (count < deployed) {
-                
-                let size = Math.random() * 30 + 15;
-                let left = Math.random() * 600 + 40;
-                let top = Math.random() * 500 + 40;
-                let color = "#" + Math.floor(Math.random() * 16777215).toString(16).slice(2, 8).toUpperCase();
-    
-                let gamescreen = document.querySelector("#game-screen");
-                let bubble = document.createElement("div");
-                let bubbleID = `bubble-${count}`;
-                bubble.id = bubbleID;
-                bubble.classList.add("enemy", "bubble");
-    
-                gamescreen.append(bubble);
-    
-                let newBubble = document.getElementById(bubbleID);
-                newBubble.style.height = `${size}px`;
-                newBubble.style.width = `${size}px`;
-                newBubble.style.left = `${left}px`;
-                newBubble.style.top = `${top}px`;
-                newBubble.style.backgroundColor = color;
+        if (count < deployed) {
 
-                // (xPos, yPos, radius, dx, dy, id)
-                let bubbleObject = new bubbleBuilder(left, top, size / 2, 2, -2, bubbleID);
-                bubbleArray.push(bubbleObject);
+            let size = Math.random() * 30 + 15;
+            let left = Math.random() * 600 + 40;
+            let top = Math.random() * 500 + 40;
+            let color = "#" + Math.floor(Math.random() * 16777215).toString(16).slice(2, 8).toUpperCase();
 
-                console.log("bubbleObject");
-                console.log(bubbleObject);
-    
-                count++
+            let gamescreen = document.querySelector("#game-screen");
+            let bubble = document.createElement("div");
+            let bubbleID = `bubble-${count}`;
+            bubble.id = bubbleID;
+            bubble.classList.add("enemy", "bubble");
 
-            } else {
-                clearInterval(gameLoop);
-                alert("Done!");
-            };
+            gamescreen.append(bubble);
+
+            let newBubble = document.getElementById(bubbleID);
+            newBubble.style.height = `${size}px`;
+            newBubble.style.width = `${size}px`;
+            newBubble.style.left = `${left}px`;
+            newBubble.style.top = `${top}px`;
+            newBubble.style.backgroundColor = color;
+
+            // (xPos, yPos, radius, dx, dy, id)
+            let bubbleObject = new bubbleBuilder(left, top, size / 2, 5, 5, bubbleID, 0.7, 10);
+            bubbleArray.push(bubbleObject);
+
+            console.log("bubbleObject");
+            console.log(bubbleObject);
+
+            count++
+
+        } else {
+            clearInterval(gameLoop);
+            // alert("Done!");
         };
+    };
     // };
 
     // gameArrays.updateLevel(1);
@@ -339,54 +339,163 @@ function startLevel() {
     // };
     // levelHordeArr = newHorde;
 
-    function bubbleBuilder(xPos, yPos, radius, dx, dy, id) {
+    function bubbleBuilder(xPos, yPos, radius, dx, dy, id, e, mass) {
         this.xPos = xPos;
         this.yPos = yPos;
         this.radius = radius;
         this.dx = dx; // left or right
         this.dy = dy; // up or down
         this.id = id;
+        this.e = -e;
+        this.mass = mass;
+        this.gravity = 9.81;
+        this.area = (Math.PI * radius * radius) / 10000;
+        this.bubbleElem = "";
         this.updatePos = function (elemIDTouched) {
             let elemTouched = document.getElementById(elemIDTouched);
             let elemCoords = elemTouched.getBoundingClientRect();
 
-            this.xPos += this.dx;
-            this.yPos += this.dy;
+            
+
+            // this.xPos += this.dx; 
+            // this.yPos += this.dy;
 
             console.log(this.xPos);
             console.log(this.yPos);
+            console.log("elemCoords");
+            console.log(elemCoords);
 
-            if (this.xPos + this.dx > elemCoords.width - this.radius || this.xPos + this.dx < this.radius) {
+            if(this.xPos + this.dx < this.radius || this.xPos + this.dx > elemCoords.width - this.radius) {
                 this.dx = -this.dx;
             };
-            if (yPos + this.dy > elemCoords.height - this.radius || yPos + this.dy < this.radius) {
+
+            if (this.yPos + this.dy < this.radius || this.yPos + this.dy > elemCoords.height - this.radius) {
                 this.dy = -this.dy;
             };
+
+            // if (this.xPos + this.dx > elemCoords.width - this.radius || this.xPos + this.dx < this.radius) {
+            //     this.dx = -this.dx;
+            // };
+            // if (this.yPos + this.dy > elemCoords.height - this.radius || this.yPos + this.dy < this.radius) {
+            //     this.dy = -this.dy;
+            // };
+            // if (this.yPos + this.radius >= elemCoords.height) {
+            //     this.dy *= -1;
+            //     // this.yPos += this.dy;
+            // };
+
+            // velocity:
+            this.xPos += this.dx;
+            this.yPos += this.dy;
         };
         this.movePos = function () {
-            let bubbleElem = document.getElementById(this.id);
-            bubbleElem.style.left = `${this.xPos}px`;
-            bubbleElem.style.top = `${this.yPos}px`;
+            this.bubbleElem = document.getElementById(this.id);
+            this.bubbleElem.style.left = `${this.xPos}px`;
+            this.bubbleElem.style.top = `${this.yPos}px`;
+        };
+        this.coordChecker = function () {
+            this.bubbleElem = document.getElementById(this.id);
+            // updateCoords method
+            let bubbleCoords = this.bubbleElem.getBoundingClientRect();
+            // updateElemArray method
+            let otherBubblesArr = document.querySelectorAll(".bubble");
+            // loop through elemArray and getCoords
+            for (let i = 0; i < otherBubblesArr.length; i++) {
+                // compare elemCoords and elemArray[index].coords
+                if (this.id != otherBubblesArr[i].id) {
+
+                    let bubbleArrElem = otherBubblesArr[i].getBoundingClientRect();
+
+                    if (this.xPos + this.radius + (bubbleArrElem.width / 2) > bubbleArrElem.left &&
+                        this.xPos < bubbleArrElem.left + this.radius + (bubbleArrElem.width / 2) &&
+                        this.yPos + this.radius + (bubbleArrElem.height / 2) > bubbleArrElem.top &&
+                        this.yPos < bubbleArrElem.top + this.radius + (bubbleArrElem.height / 2)) {
+                        
+                    //         //pythagoras 
+                    //     var distX = this.xPos - bubbleArrElem.left;
+                    //     var distY = this.yPos - bubbleArrElem.top;
+                    //     var d = Math.sqrt((distX) * (distX) + (distY) * (distY));
+
+                    //     //checking circle vs circle collision 
+                    //     if (d < this.radius + (bubbleArrElem.width / 2)) {
+                    //         var nx = (bubbleArrElem.left - this.xPos) / d;
+                    //         var ny = (bubbleArrElem.top - this.yPos) / d;
+                    //         var p = 2 * (this.dx * nx + this.dy * ny - b2.velocity.x * nx - b2.velocity.y * ny) / (b1.mass + b2.mass);
+
+                    //         // calulating the point of collision 
+                    //         var colPointX = ((this.xPos * (bubbleArrElem.width / 2)) + (bubbleArrElem.left * this.radius)) / (this.radius + (bubbleArrElem.width / 2));
+                    //         var colPointY = ((this.yPos * (bubbleArrElem.width / 2)) + (bubbleArrElem.top * this.radius)) / (this.radius + (bubbleArrElem.width / 2));
+
+                    //         //stoping overlap 
+                    //         this.xPos = colPointX + this.radius * (this.xPos - bubbleArrElem.left) / d;
+                    //         this.yPos = colPointY + this.radius * (this.yPos - bubbleArrElem.top) / d;
+                    //         bubbleArrElem.left = colPointX + (bubbleArrElem.width / 2) * (bubbleArrElem.left - this.xPos) / d;
+                    //         bubbleArrElem.top = colPointY + (bubbleArrElem.width / 2) * (bubbleArrElem.top - this.yPos) / d;
+
+                    //         //updating velocity to reflect collision 
+                    //         this.dx -= p * this.mass * nx;
+                    //         this.dy -= p * this.mass * ny;
+                    //         // b2.velocity.x += p * b2.mass * nx;
+                    //         // b2.velocity.y += p * b2.mass * ny;
+                    //     };
+                    // };
+
+                    if ((Math.abs(this.xPos - bubbleArrElem.left) < (this.radius + (bubbleArrElem.width / 2))) && (Math.abs(this.yPos - bubbleArrElem.top) < (this.radius + (bubbleArrElem.width / 2)))) {
+                        //reverse ball one
+                        this.dx = -this.dx;
+                        this.dy = -this.dy;
+
+                        let ballObj = bubbleArray.find(bubble => bubble.id === otherBubblesArr[i].id);
+
+                        //reverse ball two
+                        ballObj.dx = -ballObj.dx;
+                        ballObj.dy = -ballObj.dy;
+
+                        ballObj.movePos();
+
+                        // let reboundBall = document.getElementById(otherBubblesArr[i].id);
+                        // bubbleArray.findOne
+                        // reboundBall.style.left = `${this.xPos}px`;
+                        // reboundBall.style.top = `${this.yPos}px`;
+                    };
+
+                    // if (bubbleArrElem.left < bubbleCoords.right + this.radius + (bubbleArrElem.width / 2) &&
+                    // if (bubbleArrElem.left < bubbleCoords.right &&
+                    //     bubbleArrElem.right > bubbleCoords.left &&
+                    //     bubbleArrElem.top < bubbleCoords.bottom &&
+                    //     bubbleArrElem.bottom > bubbleCoords.top) {
+                            // this.dx *= -1;
+                            // this.dy *= -1;
+                            // return otherBubblesArr[i].id;
+                    };
+                };
+            };
+            this.bubbleElem = document.getElementById(this.id);
+            this.bubbleElem.style.left = `${this.xPos}px`;
+            this.bubbleElem.style.top = `${this.yPos}px`;
         };
     };
 
     // let bubbleObject = new bubbleBuilder(10, 10, 5, 2, -2, "bubble-0");
     // console.log(bubbleObject);
-    
-    function gameLoopTest() { // draw() 
+
+    async function gameLoopTest() { // draw() 
         // draw the dom elems:
         let gamescreen = document.getElementById("game-screen");
         let gamescreenCoords = gamescreen.getBoundingClientRect();
-        
+
         let xPos = gamescreenCoords.width / 2;
         let yPos = gamescreenCoords.height - 30;
 
-        
+
         for (let i = 0; i < bubbleArray.length; i++) {
             console.log("bubbleArray[i].updatePos('game-screen')");
-            bubbleArray[i].updatePos("game-screen");
-            bubbleArray[i].movePos();
+            await bubbleArray[i].updatePos("game-screen");
+            await bubbleArray[i].coordChecker();
+            await bubbleArray[i].movePos();
         };
+
+        // cartesian coors:
     };
 
     setInterval(gameLoopTest, 150);

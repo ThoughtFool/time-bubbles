@@ -9,13 +9,23 @@ body {
     /* align-items: center; */
     overflow-x: hidden;
     overflow-y: hidden;
+    align-items: center;
+    justify-content: center;
+}
+
+#game-screen {
+    width: 100vw;
+    height: 100vh;
 }
 
 .startBtn {
     background-image: radial-gradient(red, black);
+    left: 10px;
+    top: 10px;
     height: 150px;
     width: 150px;
     border-radius: 50%;
+    position: absolute;
 }
 
 .bubble {
