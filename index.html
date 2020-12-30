@@ -1,14 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Now and Later</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div id="game-screen"></div>
-    <button class="startBtn"></button>
+    <button class="startBtn">START</button>
+    <div id="modal-bg">
+        <div class="modal-body">
+            <h1 class="modal-text"></h1>
+        </div>
+        <button id="ready-modal">READY!</button>
+        <button id="done-modal">DONE!</button>
+    </div>
+    <div id="blaster"></div>
+    <div class="turret"></div>
     <script src="./index.js"></script>
 </body>
+
 </html>
