@@ -49,6 +49,9 @@ let levelData = [{
     },
 ];
 
+let gamescreen = document.getElementById("game-screen");
+let gamescreenCoords = gamescreen.getBoundingClientRect();
+
 let savedHorde = [];
 let currentHordeArr = [];
 let levelHordeArr = [];
@@ -111,59 +114,183 @@ let gameArrays = {
         let result = rads * (180/Math.PI);
         return result;
     },
+    degsToRads: function (angle) {
+        let result = angle / Math.PI * 180;
+        return result;
+    },
+    fireProjectile: function () {
+        let radians = degsToRads(this.angle);
+        if (this.movingForward) {
+            this.velX += Math.cos(radians) * this.speed;
+            this.velY += Math.sin(radians) * this.speed;
+        }
+    },
+    // let newX = oldX + cos(radians) * distance;
+    // let newY = oldY + sin(radians) * distance;
     lives: 3,
     blaster: {
         id: "blaster",
         angle: 0,
-        currentAmmo: this.currentAmmo
+        currentAmmo: {
+            laser: {
+                count: [],
+                limit: 15,
+                shots: []
+            },
+            bomb: {
+                count: [],
+                limit: 5,
+                shots: []
+            }
+        },
+        deg: 0,
+        shots: [],
+        noseX: gamescreenCoords.width / 2 + 15,
+        noseY: gamescreenCoords.width / 2,
+        radius: 15,
+        left: gamescreenCoords.width / 2,
+        top: gamescreenCoords.width / 2,
+        rotateSpeed: 0.001
     },
     laserCount: 0,
     moveBlaster: function (direction) {
-        let blaster = document.getElementById("blaster");
+        let myBlaster = document.getElementById("blaster");
 
-        console.log("this.blasterCannon.rot");
-        console.log(this.blasterCannon.rot);
+        // console.log("this.blasterCannon.rot");
+        // console.log(this.blasterCannon.rot);
+        console.log("this.blaster.angle");
+        console.log(this.blaster.angle);
 
-        letnewDeg = this.radsToDegs(this.blasterCannon.a += this.blasterCannon.rot);
-        console.log("letnewDeg");
-        console.log(letnewDeg);
+        let newDeg = this.radsToDegs(this.blaster.angle);
+        let newDegY = this.radsToDegs(this.blaster.noseY);
+        console.log("newDeg");
+        console.log(newDeg);
+        console.log("newDegY");
+        console.log(newDegY);
 
-        if (direction === "clockwise" && letnewDeg < 180) {
-            blaster.style.transform = `rotate(${letnewDeg}deg)`;
-            this.blasterCannon.a += this.blasterCannon.rot;
+        if (direction === "clockwise" || direction === -1) {
+            // if (direction === "clockwise" && newDeg < 180) {
+            myBlaster.style.transform = `rotate(${newDeg}deg)`;
+            // this.blasterCannon.a += this.blasterCannon.rot;
 
-        } else if (direction === "counter-clockwise" && letnewDeg > 0) {
-            blaster.style.transform = `rotate(${letnewDeg}deg)`;
-            this.blasterCannon.a += this.blasterCannon.rot;
-
+        } else if (direction === "counter-clockwise" || direction === 1) {
+            // } else if (direction === "counter-clockwise" && newDeg > 0) {
+            myBlaster.style.transform = `rotate(${newDeg}deg)`;
+            // this.blasterCannon.a += this.blasterCannon.rot;
 
         } else {
             console.log("error");
         };
     },
-    updateBlaster: function () {
-        let myBlaster = document.getElementById("blaster");
-        let computed = window.getComputedStyle(myBlaster, null);
-        let transformed = computed.getPropertyValue("transform");
-        let matrix = transformed.split('(')[1].split(')')[0].split(',');
+    rotateBlaster: function (dir) {
+        console.log("this.blaster.rotateSpeed");
+        console.log(this.blaster.rotateSpeed);
+        this.blaster.angle += this.blaster.rotateSpeed * dir;
+        console.log(this.blaster.angle);
+        this.updateBlaster(dir);
 
-        let v1 = {
-                x: matrix[0],
-                y: matrix[1]
-            },
-            v2 = {
-                x: matrix[2],
-                y: matrix[3]
-            },
-            scale = Math.sqrt(v1.x * v1.x + v1.y * v1.y),
-            sin = v1.y / scale,
-            angle = Math.round(Math.atan(v1.y, v1.x) * (180 / Math.PI));
+    },
+    updateBlaster: function (dir) {
+        let rads = this.blaster.angle / Math.PI * 180;
+        this.blaster.noseX = this.blaster.left - this.blaster.radius * Math.cos(rads);
+        this.blaster.noseY = this.blaster.top - this.blaster.radius * Math.sin(rads);
 
-        console.log("angle:");
-        console.log(angle);
+        this.moveBlaster(dir);
 
-        this.blaster.angle = angle;
-        this.blaster.v1 = v1;
+    },
+    shootBlaster: function (ammoString) {
+        console.log("shooting laser");
+
+        // TESTING ONLY:
+        let index = 0;
+
+        if (this.blaster.currentAmmo[ammoString].length > 0) {
+
+            let projectile = this.blaster.currentAmmo[ammoString][index];
+            this.blaster.shots.push(projectile);
+            this.blaster.currentAmmo[ammoString].splice(index, 1);
+    
+            setInterval(this.updateLaser, 250);
+        } else {
+            console.log("no weapons");
+        };
+
+    },
+    makeLaser: function (angle, ammoString) {
+        let newProjectile;
+        let xPos = this.blaster.noseX,
+            yPos = this.blaster.noseY;
+
+            console.log("this.blaster.currentAmmo");
+            console.log(this.blaster.currentAmmo);
+            console.log(ammoString);
+        
+        if (ammoString === "laser") {
+            newProjectile = {
+                xPos: xPos,
+                yPos: yPos,
+                angle: angle,
+                height: 4,
+                width: 4,
+                speed: 5,
+                xVel: 0,
+                yVel: 0,
+                type: ammoString
+            };
+
+        } else if (ammoString ==="bomb") {
+            newProjectile = {
+                xPos: xPos,
+                yPos: yPos,
+                angle: angle,
+                height: 8,
+                width: 8,
+                speed: 2,
+                xVel: 0,
+                yVel: 0,
+                type: ammoString
+            };
+
+        }
+        this.blaster.currentAmmo[ammoString].count.push(newProjectile);
+    },
+    updateLaser: function () { // TODO: make loop for all projectiles:
+        // console.log("this.blaster");
+        // console.log(this.blaster);
+
+        if (this.blaster.shots > 0) {
+            let rads = this.blaster.shots[0].angle / Math.PI * 180;
+            console.log("rads!");
+            console.log(this.blaster.shots[0].xPos);
+            console.log(this.blaster.shots[0].yPos);
+            this.blaster.shots[0].xPos -= Math.cos(rads) * this.blaster.shots[0].speed;
+            this.blaster.shots[0].yPos -= Math.sin(rads) * this.blaster.shots[0].speed;
+        };
+    },
+
+        // let myBlaster = document.getElementById("blaster");
+        // let computed = window.getComputedStyle(myBlaster, null);
+        // let transformed = computed.getPropertyValue("transform");
+        // let matrix = transformed.split('(')[1].split(')')[0].split(',');
+
+        // let v1 = {
+        //         x: matrix[0],
+        //         y: matrix[1]
+        //     },
+        //     v2 = {
+        //         x: matrix[2],
+        //         y: matrix[3]
+        //     },
+        //     scale = Math.sqrt(v1.x * v1.x + v1.y * v1.y),
+        //     sin = v1.y / scale,
+        //     rads = Math.round(Math.atan(v1.y, v1.x)),
+        //     angle = this.radsToDegs(rads);
+
+        // console.log("angle:");
+        // console.log(angle);
+
+        // this.blaster.angle = angle;
+        // this.blaster.v1 = v1;
 
         // {
         //     id: "blaster",
@@ -171,7 +298,7 @@ let gameArrays = {
         //     deg: gameArrays.deg,
         //     currentAmmo: gameArrays.currentAmmo
         // };
-    },
+    // },
     // currentLevel: levelHordeArr.level,
     updateHistory: function () {
         this.history[this.currentLevel].hordeArr = this.currentHordeArr;
@@ -343,114 +470,116 @@ let gameArrays = {
             y: 0
         }
     },
-    fireLaser: function () {
-        // create the laser object
-        let myBlaster = document.getElementById("blaster");
-        let blasterCoords = myBlaster.getBoundingClientRect();
+    // fireLaser: function () {
+    //     // create the laser object
+    //     let myBlaster = document.getElementById("blaster");
+    //     let blasterCoords = myBlaster.getBoundingClientRect();
 
-        if (this.currentAmmo.laser.count.length > 0) {
-            this.currentAmmo.laser.fired.push({
-                x: blasterCoords.left * Math.cos(this.blasterCannon.a),
-                y: blasterCoords.top * Math.sin(this.blasterCannon.a),
-                xv: 500 * Math.cos(this.blasterCannon.a) / 30,
-                yv: -500 * Math.sin(this.blasterCannon.a) / 30,
-                dist: 0,
-                explodeTime: 0
-            });
+    //     if (this.currentAmmo.laser.count.length > 0) {
+    //         this.currentAmmo.laser.fired.push({
+    //             x: blasterCoords.left - 100 * Math.cos(this.blasterCannon.a),
+    //             y: blasterCoords.top - 100 * Math.sin(this.blasterCannon.a),
+    //             xv: 500 * Math.cos(this.blasterCannon.a) / 30,
+    //             yv: -500 * Math.sin(this.blasterCannon.a) / 30,
+    //             dist: 0,
+    //             explodeTime: 0
+    //         });
 
-            // let newX = this.currentAmmo.laser.fired[0].x;
-            // let newY = this.currentAmmo.laser.fired[0].y;
+    //         // let newX = this.currentAmmo.laser.fired[0].x;
+    //         // let newY = this.currentAmmo.laser.fired[0].y;
 
-            let gamescreen = document.getElementById("game-screen");
+    //         let gamescreen = document.getElementById("game-screen");
 
-            let laserBeam = document.createElement("div");
-            laserBeam.className = "laser-beam";
-            let laserID = `laser-${this.laserCount}`;
-            laserBeam.id = laserID;
-            gamescreen.append(laserBeam);
+    //         let laserBeam = document.createElement("div");
+    //         laserBeam.className = "laser-beam";
+    //         let laserID = `laser-${this.laserCount}`;
+    //         laserBeam.id = laserID;
+    //         gamescreen.append(laserBeam);
 
-            let myLaser = document.getElementById(laserID);
+    //         let myLaser = document.getElementById(laserID);
 
-            myLaser.style.position = "absolute"
-            // myLaser.style.left = `${newX}px`;
-            // myLaser.style.top = `${newY}px`;
+    //         myLaser.style.position = "absolute"
+    //         myLaser.style.left = `${this.currentAmmo.laser.fired[0].x}px`;
+    //         myLaser.style.top = `${this.currentAmmo.laser.fired[0].y}px`;
 
-            setInterval(() => {
-                console.log(this.currentAmmo.laser.fired[0].xv);
-                let moveX = this.currentAmmo.laser.fired[0].x += this.currentAmmo.laser.fired[0].xv;
-                let moveY = this.currentAmmo.laser.fired[0].y += this.currentAmmo.laser.fired[0].yv;
-                myLaser.style.left = `${moveX}px`;
-                myLaser.style.top = `${moveY}px`;
-                console.log("moveX, moveY");
-                console.log(moveX, moveY);
+    //         setInterval(() => {
+    //             console.log(this.currentAmmo.laser.fired[0].xv);
+    //             let moveX = this.currentAmmo.laser.fired[0].x += this.currentAmmo.laser.fired[0].xv;
+    //             let moveY = this.currentAmmo.laser.fired[0].y += this.currentAmmo.laser.fired[0].yv;
+    //             myLaser.style.left = `${moveX}px`;
+    //             myLaser.style.top = `${moveY}px`;
+    //             console.log("moveX, moveY");
+    //             console.log(moveX, moveY);
 
-            }, 150);
-        };
-    },
-    shootLaser: function () {
+    //         }, 150);
+    //     };
+    // },
+    // shootLaser: function () {
 
-        // let myBlaster = document.getElementById("blaster");
-        // let blasterCoords = myBlaster.getBoundingClientRect();
-        // let rad = this.blaster.deg * (Math.PI / 180);
+    //     // let myBlaster = document.getElementById("blaster");
+    //     // let blasterCoords = myBlaster.getBoundingClientRect();
+    //     // let rad = this.blaster.deg * (Math.PI / 180);
 
-        if (this.currentAmmo.laser.count.length > 0) {
-            // this.currentAmmo.laser.fired.push({
-            //     x: blasterCoords.right + 4 / 3 * 25 * Math.cos(rad),
-            //     y: blasterCoords.top - 4 / 3 * 25 * Math.sin(rad),
-            //     xv: 100 * Math.cos(rad) / 30,
-            //     yv: -100 * Math.sin(rad) / 30
-            // });
+    //     if (this.currentAmmo.laser.count.length > 0) {
+    //         // this.currentAmmo.laser.fired.push({
+    //         //     x: blasterCoords.right + 4 / 3 * 25 * Math.cos(rad),
+    //         //     y: blasterCoords.top - 4 / 3 * 25 * Math.sin(rad),
+    //         //     xv: 100 * Math.cos(rad) / 30,
+    //         //     yv: -100 * Math.sin(rad) / 30
+    //         // });
 
-            let newX = this.currentAmmo.laser.fired[0].x;
-            let newY = this.currentAmmo.laser.fired[0].y;
+    //         let newX = this.currentAmmo.laser.fired[0].x;
+    //         let newY = this.currentAmmo.laser.fired[0].y;
 
-            let gamescreen = document.getElementById("game-screen");
+    //         let gamescreen = document.getElementById("game-screen");
 
-            let laserBeam = document.createElement("div");
-            laserBeam.className = "laser-beam";
-            let laserID = `laser-${this.laserCount}`;
-            laserBeam.id = laserID;
-            gamescreen.append(laserBeam);
+    //         let laserBeam = document.createElement("div");
+    //         laserBeam.className = "laser-beam";
+    //         let laserID = `laser-${this.laserCount}`;
+    //         laserBeam.id = laserID;
+    //         gamescreen.append(laserBeam);
 
-            let myLaser = document.getElementById(laserID);
+    //         let myLaser = document.getElementById(laserID);
 
-            myLaser.style.position = "absolute"
-            myLaser.style.left = `${newX}px`;
-            myLaser.style.top = `${newY}px`;
+    //         myLaser.style.position = "absolute"
+    //         myLaser.style.left = `${newX}px`;
+    //         myLaser.style.top = `${newY}px`;
 
-            setInterval(() => {
-                console.log(this.currentAmmo.laser.fired[0].xv);
-                let moveX = this.currentAmmo.laser.fired[0].x += this.currentAmmo.laser.fired[0].xv;
-                let moveY = this.currentAmmo.laser.fired[0].y += this.currentAmmo.laser.fired[0].yv;
-                myLaser.style.left = `${moveX}px`;
-                myLaser.style.top = `${moveY}px`;
-                console.log("moveX, moveY");
-                console.log(moveX, moveY);
+    //         setInterval(() => {
+    //             console.log(this.currentAmmo.laser.fired[0].xv);
+    //             let moveX = this.currentAmmo.laser.fired[0].x += this.currentAmmo.laser.fired[0].xv;
+    //             let moveY = this.currentAmmo.laser.fired[0].y += this.currentAmmo.laser.fired[0].yv;
+    //             myLaser.style.left = `${moveX}px`;
+    //             myLaser.style.top = `${moveY}px`;
+    //             console.log("moveX, moveY");
+    //             console.log(moveX, moveY);
 
-            }, 150);
+    //         }, 150);
             
-        };
-    },
+    //     };
+    // },
     fireWeapon: function (actionString, indexOfBubble) {
-        if (actionString === "laser" && this.currentAmmo[actionString].count.length > 0) {
+        if (actionString === "laser" && this.blaster.currentAmmo[actionString].count.length > 0) {
             this.updateHorde(indexOfBubble, "destroy");
             this.updateAmmo("remove", actionString);
 
-        } else if (actionString === "bomb" && this.currentAmmo[actionString].count.length > 0) {
+        } else if (actionString === "bomb" && this.blaster.currentAmmo[actionString].count.length > 0) {
             this.updateHorde(indexOfBubble, "teleport");
             this.updateAmmo("remove", actionString);
 
         } else {
-            console.log(`error: actionString not defined or ammo count below 0. Ammo: ${this.currentAmmo[actionString].length} `);
+            console.log(`error: actionString not defined or ammo count below 0. Ammo: ${this.blaster.currentAmmo[actionString].length} `);
         };
     },
     updateAmmo: function (actionString, ammoString) {
 
         if (actionString === "remove") {
-            this.currentAmmo[ammoString].count.pop();
+            this.blaster.currentAmmo[ammoString].count.pop();
 
-        } else if (actionString === "add" && this.currentAmmo[ammoString].count.length < this.currentAmmo[ammoString].limit) {
-            this.currentAmmo[ammoString].count.push(ammoString);
+        } else if (actionString === "add" && this.blaster.currentAmmo[ammoString].count.length < this.blaster.currentAmmo[ammoString].limit) {
+
+            this.makeLaser(this.blaster.angle, ammoString);
+            // this.blaster.currentAmmo[ammoString].count.push(ammoString);
 
         } else {
             console.log("error: actionString not defined");
@@ -572,16 +701,18 @@ startBtn.addEventListener("click", startGame);
 async function naviCtrl(value) {
 
     if (value.key === "ArrowDown") {
-        gameArrays.blasterCannon.rot = 360 / 180 * Math.PI / 15;
-        console.log("rotation right:");
-        console.log(gameArrays.blasterCannon.rot);
-        gameArrays.moveBlaster("clockwise");
+        // gameArrays.blasterCannon.rot = 360 / 180 * Math.PI / 15;
+        // console.log("rotation right:");
+        // console.log(gameArrays.blasterCannon.rot);
+        // gameArrays.moveBlaster("clockwise");
+        gameArrays.rotateBlaster(-1);
 
     } else if (value.key === "ArrowUp") {
-        gameArrays.blasterCannon.rot = -360 / 180 * Math.PI / 15;
-        console.log("rotation left:");
-        console.log(gameArrays.blasterCannon.rot);
-        gameArrays.moveBlaster("counter-clockwise");
+        // gameArrays.blasterCannon.rot = -360 / 180 * Math.PI / 15;
+        // console.log("rotation left:");
+        // console.log(gameArrays.blasterCannon.rot);
+        // gameArrays.moveBlaster("counter-clockwise");
+        gameArrays.rotateBlaster(1);
 
     } else if (value.key === "ArrowRight") {
         gameArrays.updateAmmo("add", "laser");
@@ -593,15 +724,17 @@ async function naviCtrl(value) {
         gameArrays.endLevel();
 
     } else if (value.key === "s" || value.key === "S") {
-        // gameArrays.enterLevel(1);
-        // gameArrays.aimWeapon();
-        gameArrays.fireLaser();
-
+        gameArrays.enterLevel(1);
+        
     } else if (value.key === "a" || value.key === "A") {
-        gameArrays.fireWeapon("laser", 0);
+        let ammoString = "laser";
+        gameArrays.shootBlaster(ammoString);
+        gameArrays.fireWeapon(ammoString, 0);
 
     } else if (value.key === "d" || value.key === "D") {
-        gameArrays.fireWeapon("bomb", 0);
+        let ammoString = "bomb";
+        gameArrays.shootBlaster(ammoString);
+        gameArrays.fireWeapon(ammoString, 0);
 
     } else {
         console.log(`value.key: ${value.key}`);
@@ -630,8 +763,8 @@ function startLevel(levelOver, gameStatus) {
 
     if (levelOver != false) {
 
-        let blaster = document.getElementById("blaster");
-        blaster.style.display = "block";
+        let myBlaster = document.getElementById("blaster");
+        myBlaster.style.display = "block";
         let turret = document.querySelector(".turret");
         turret.style.display = "block";
 
