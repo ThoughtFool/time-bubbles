@@ -1,3 +1,342 @@
+function afterLoading() {
+
+    // let gamescreen = document.getElementById("game-screen");
+
+    // var img = $('.image');
+    // if (myTestBlaster.length > 0) {
+    // var offset = myTestBlaster.offset();
+    // let gamescreenCoords = gamescreen.getBoundingClientRect();
+
+    // function mouse(evt) {
+    let myTestBlaster = document.getElementById("blaster");
+    let myTestBlasterCoords = myTestBlaster.getBoundingClientRect();
+
+    let mouseX = 0.0;
+    let mouseY = 0.0;
+
+    console.log("myTestBlasterCoords");
+    console.log(myTestBlasterCoords);
+
+    let blasterObj = {
+        x: (myTestBlasterCoords.width * 0.5) | 0,
+        y: (myTestBlasterCoords.height * 0.5) | 0,
+        dx: 0.0,
+        dy: 0.0,
+        angle: 0.0,
+        radius: 17.5,
+
+        tick: function (angle) {
+            this.angle = angle;
+            // this.angle = Math.atan2(mouseY - this.y, mouseX - this.x);
+        },
+        update: function (mouseX, mouseY) {
+            var dx = mouseX - this.x;
+            var dy = mouseY - this.y;
+            this.angle = Math.atan2(dy, dx);
+        }
+    };
+
+    let bullet = {
+        x: (myTestBlasterCoords.width * 0.5) | 0,
+        y: (myTestBlasterCoords.height * 0.5) | 0,
+        dx: 0.0,
+        dy: 0.0,
+        radius: 5.0,
+
+        tick: function () {
+            this.x += this.dx;
+            this.y += this.dy;
+
+            if (this.x + this.radius < 0.0 ||
+                this.x - this.radius > myTestBlasterCoords.width ||
+                this.y + this.radius < 0.0 ||
+                this.y - this.radius > myTestBlasterCoords.height) {
+                this.dx = 0.0;
+                this.dy = 0.0;
+            };
+        }
+    };
+
+    function updateBeam(projectile, testCounter) {
+    // TODO: make loop for all projectiles or make a method of laser/bomb:
+
+        console.log("???");
+        console.log(testCounter);
+
+        if (testCounter < 1) {
+
+            let gamescreen = document.getElementById("game-screen");
+            
+            let laserBeam = document.createElement("div");
+            laserBeam.className = "laser-beam";
+            
+            // TODO: create dynamic counter for ids:
+            let laserID = "laser-0";
+            // let laserID = `laser-${this.laserCount}`;
+            laserBeam.id = laserID;
+            gamescreen.append(laserBeam);
+            
+            let myLaser = document.getElementById("laser-0");
+            console.log(myLaser);
+            
+            myLaser.style.position = "absolute";
+            
+            myLaser.style.left = `${projectile.xPos}px`;
+            myLaser.style.top = `${projectile.yPos}px`;
+
+            function loop() {
+                // Tick
+                // bullet.tick();
+                let myLaser = document.getElementById("laser-0");
+                let myLaserCoords = myLaser.getBoundingClientRect();
+
+                let newPosX = myLaserCoords.left += projectile.dx;
+                let newPosY = myLaserCoords.top += projectile.dy;
+
+                myLaser.style.left = `${newPosX}px`;
+                myLaser.style.top = `${newPosY}px`;
+
+                // bullet.render();
+                // player.render();
+
+                requestAnimationFrame(loop);
+            };
+
+            loop();
+
+            
+            console.log("yay!");
+        }
+        testCounter++;
+    };
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+
+    let centerPoint = window.getComputedStyle(myTestBlaster).transformOrigin,
+        centers = centerPoint.split(" ");
+
+    function rotatePointer(e) {
+        let myTestBlaster = document.getElementById("blaster");
+        let myTestBlasterCoords = myTestBlaster.getBoundingClientRect();
+
+        // console.log("myTestBlasterCoords");
+        // console.log(myTestBlasterCoords);
+
+        let pointerEvent = e;
+        if (e.targetTouches && e.targetTouches[0]) {
+            e.preventDefault();
+            pointerEvent = e.targetTouches[0];
+            mouseX = pointerEvent.pageX;
+            mouseY = pointerEvent.pageY;
+        } else {
+            mouseX = e.clientX,
+            mouseY = e.clientY;
+        };
+
+        let centerY = myTestBlasterCoords.top + parseInt(centers[1] + (myTestBlasterCoords.width / 2)),
+            centerX = myTestBlasterCoords.left + parseInt(centers[0] + (myTestBlasterCoords.width / 2)),
+            
+            // is this reversed?
+            radians = Math.atan2(mouseX - centerX, mouseY - centerY),
+            degrees = (radians * (180 / Math.PI) * -1) + 180;
+
+            blasterObj.tick(radians);
+
+        //////////////////////////////////////// above code centers blaster ////////////////////////////////////////////////
+
+        // var center_x = (myTestBlasterCoords.left) + (myTestBlasterCoords.width / 2);
+        // var center_y = (myTestBlasterCoords.top) + (myTestBlasterCoords.height / 2);
+        // var mouse_x = e.pageX;
+        // var mouse_y = e.pageY;
+        // var radians = Math.atan2(mouse_x - center_x, mouse_y - center_y);
+        // var degrees = (radians * (180 / Math.PI) * -1) + 90;
+
+        myTestBlaster.style.transform = `rotate(${degrees}deg)`;
+    };
+    gamescreen.addEventListener('mousemove', rotatePointer);
+    gamescreen.addEventListener('touchmove', rotatePointer);
+    gamescreen.addEventListener('touchstart', rotatePointer);
+    gamescreen.addEventListener('mousedown', launcher);
+
+    function launcher() {
+
+        let myTestBlaster = document.getElementById("blaster");
+        let myTestBlasterCoords = myTestBlaster.getBoundingClientRect();
+
+        console.log("myTestBlasterCoords");
+        console.log(myTestBlasterCoords);
+
+        // The mouse pos - the myTestBlasterCoords pos gives a vector
+        // that points from the myTestBlasterCoords toward the mouse
+        let x = mouseX - myTestBlasterCoords.x;
+        let y = mouseY - myTestBlasterCoords.y;
+
+        // Using pythagoras' theorm to find the distance (the length of the vector)
+        let l = Math.sqrt(x * x + y * y);
+
+        // Dividing by the distance gives a normalized vector whose length is 1
+        x = x / l;
+        y = y / l;
+
+        // Reset bullet position
+        bullet.x = myTestBlasterCoords.x;
+        bullet.y = myTestBlasterCoords.y;
+
+        // Get the bullet to travel towards the mouse pos with a new speed of 10.0 (you can change this)
+        bullet.dx = x * 10.0;
+        bullet.dy = y * 10.0;
+
+        updateBeam({
+            xPos: bullet.x,
+            yPos: bullet.y,
+            dx: bullet.dx,
+            dy: bullet.dy
+        }, 0);
+
+    };
+
+    // function loop() {
+    //     // Tick
+    //     bullet.tick();
+    //     // blasterObj.tick();
+    //     // Render
+    //     // ctx.fillStyle = "gray";
+    //     // ctx.fillRect(0, 0, myTestBlasterCoords.width, myTestBlasterCoords.height);
+    //     // bullet.render();
+    //     // player.render();
+    //     //
+    //     requestAnimationFrame(loop);
+    // };
+
+    // loop();
+
+    // gamescreen.onmousemove = function (event) {
+    //     mouse(event);
+    // };
+};
+
+// (function () {
+
+//     "use strict";
+
+//     var gamescreenWidth = 180;
+//     var gamescreenHeight = 160;
+//     var gamescreen = null;
+//     var bounds = null;
+//     // var ctx = null;
+//     var mouseX = 0.0;
+//     var mouseY = 0.0;
+
+//     var player = {
+//         x: (gamescreenWidth * 0.5) | 0,
+//         y: (gamescreenHeight * 0.5) | 0,
+//         dx: 0.0,
+//         dy: 0.0,
+//         angle: 0.0,
+//         radius: 17.5,
+
+//         tick: function () {
+//             this.angle = Math.atan2(mouseY - this.y, mouseX - this.x);
+//         },
+
+//         render: function () {
+//             // ctx.fillStyle = "darkred";
+//             // ctx.strokeStyle = "black";
+//             ctx.translate(this.x, this.y);
+//             ctx.rotate(this.angle);
+//             ctx.beginPath();
+//             ctx.moveTo(this.radius, 0.0);
+//             ctx.lineTo(-0.5 * this.radius, 0.5 * this.radius);
+//             ctx.lineTo(-0.5 * this.radius, -0.5 * this.radius);
+//             ctx.lineTo(this.radius, 0.0);
+//             ctx.fill();
+//             ctx.stroke();
+//             ctx.rotate(-this.angle);
+//             ctx.translate(-this.x, -this.y);
+//         }
+//     };
+
+//     var bullet = {
+//         x: (gamescreenWidth * 0.5) | 0,
+//         y: (gamescreenHeight * 0.5) | 0,
+//         dx: 0.0,
+//         dy: 0.0,
+//         radius: 5.0,
+
+//         tick: function () {
+//             this.x += this.dx;
+//             this.y += this.dy;
+
+//             if (this.x + this.radius < 0.0 ||
+//                 this.x - this.radius > gamescreenWidth ||
+//                 this.y + this.radius < 0.0 ||
+//                 this.y - this.radius > gamescreenHeight) {
+//                 this.dx = 0.0;
+//                 this.dy = 0.0;
+//             }
+//         },
+
+//         render: function () {
+//             ctx.fillStyle = "darkcyan";
+//             ctx.strokeStyle = "white";
+//             ctx.beginPath();
+//             ctx.arc(this.x, this.y, this.radius, 0.0, 2.0 * Math.PI, false);
+//             ctx.fill();
+//             ctx.stroke();
+//         }
+//     };
+
+//     function loop() {
+//         // Tick
+//         bullet.tick();
+//         player.tick();
+//         // Render
+//         ctx.fillStyle = "gray";
+//         ctx.fillRect(0, 0, gamescreenWidth, gamescreenHeight);
+//         bullet.render();
+//         player.render();
+//         //
+//         requestAnimationFrame(loop);
+//     }
+
+//     window.onmousedown = function (e) {
+//         // The mouse pos - the player pos gives a vector
+//         // that points from the player toward the mouse
+//         var x = mouseX - player.x;
+//         var y = mouseY - player.y;
+
+//         // Using pythagoras' theorm to find the distance (the length of the vector)
+//         var l = Math.sqrt(x * x + y * y);
+
+//         // Dividing by the distance gives a normalized vector whose length is 1
+//         x = x / l;
+//         y = y / l;
+
+//         // Reset bullet position
+//         bullet.x = player.x;
+//         bullet.y = player.y;
+
+//         // Get the bullet to travel towards the mouse pos with a new speed of 10.0 (you can change this)
+//         bullet.dx = x * 10.0;
+//         bullet.dy = y * 10.0;
+//     }
+
+//     window.onmousemove = function (e) {
+//         mouseX = e.clientX - bounds.left;
+//         mouseY = e.clientY - bounds.top;
+//     }
+
+//     window.onload = function () {
+//         gamescreen = document.getElementById("gamescreen");
+//         gamescreen.width = gamescreenWidth;
+//         gamescreen.height = gamescreenHeight;
+//         bounds = gamescreen.getBoundingClientRect();
+//         // ctx = gamescreen.getContext("2d");
+//         loop();
+//     }
+
+// });
+
 // Arrays by level: ROYGBIV
 // let levelData = {
 //     "lvl-01" : {
@@ -200,6 +539,11 @@ let gameArrays = {
         console.log("noseX");
         console.log(this.blaster.noseX);
 
+        let myBlaster = document.getElementById("blaster");
+        let myBlasterCoords = myBlaster.getBoundingClientRect();
+        this.blaster.left = myBlasterCoords.left;
+        this.blaster.top = myBlasterCoords.top;
+
         let rads = this.blaster.angle * Math.PI / 180;
         console.log("rads");
         console.log(rads);
@@ -245,8 +589,8 @@ let gameArrays = {
             this.blaster.currentAmmo[ammoString].shots[0].angle = this.blaster.angle;
             this.blaster.currentAmmo[ammoString].shots[0].xPos = this.blaster.noseX;
             this.blaster.currentAmmo[ammoString].shots[0].yPos = this.blaster.noseY;
-            setInterval(this.blaster.currentAmmo[ammoString].shots[0].updateBeam, 250);
-            
+            // setInterval(this.blaster.currentAmmo[ammoString].shots[0].updateBeam, 250);
+
         } else {
             console.log("no weapons");
         };
@@ -256,7 +600,7 @@ let gameArrays = {
         let xPos = this.blaster.noseX,
             yPos = this.blaster.noseY;
 
-            let projectile;
+        let projectile;
 
         if (ammoString === "laser") {
             this.blaster.currentAmmo[ammoString].count.push(projectile = {
@@ -275,6 +619,11 @@ let gameArrays = {
                     let myLaser = document.getElementById("laser-0");
 
                     myLaser.style.position = "absolute"
+
+                    console.log("projectile.xPos");
+                    console.log(projectile.xPos);
+                    console.log("projectile.yPos");
+                    console.log(projectile.yPos);
 
                     myLaser.style.left = `${projectile.xPos}px`;
                     myLaser.style.top = `${projectile.yPos}px`;
@@ -309,40 +658,40 @@ let gameArrays = {
                 yVel: 0,
                 type: ammoString,
                 updateBeam: function () {
-                    
-                        // let rads = this.angle / Math.PI * 180;
-                        let rads = this.blaster.angle * Math.PI / 180;
 
-                        console.log("rads!");
-                        console.log(this.xPos);
-                        console.log(this.yPos);
+                    // let rads = this.angle / Math.PI * 180;
+                    let rads = this.blaster.angle * Math.PI / 180;
 
-                        let myLaser = document.getElementById("laser-0");
+                    console.log("rads!");
+                    console.log(this.xPos);
+                    console.log(this.yPos);
 
-                        myLaser.style.position = "absolute"
+                    let myLaser = document.getElementById("laser-0");
 
-                        myLaser.style.left = `${this.xPos}px`;
-                        myLaser.style.top = `${this.yPos}px`;
+                    myLaser.style.position = "absolute"
 
-                        // velocity:
-                        this.xPos -= Math.cos(rads) * this.speed;
-                        this.yPos -= Math.sin(rads) * this.speed;
+                    myLaser.style.left = `${this.xPos}px`;
+                    myLaser.style.top = `${this.yPos}px`;
 
-                        // TODO: testing ONLY (id):
+                    // velocity:
+                    this.xPos -= Math.cos(rads) * this.speed;
+                    this.yPos -= Math.sin(rads) * this.speed;
 
-                        // this.xPos += this.dx;
-                        // this.yPos += this.dy;
-                        // this.movePos = function () {
-                        //     myLaser.style.left = `${this.getCSS("blaster", "left")}`;
-                        //     myLaser.style.top = `${this.getCSS("blaster", "top")}`;
-                        // };
+                    // TODO: testing ONLY (id):
+
+                    // this.xPos += this.dx;
+                    // this.yPos += this.dy;
+                    // this.movePos = function () {
+                    //     myLaser.style.left = `${this.getCSS("blaster", "left")}`;
+                    //     myLaser.style.top = `${this.getCSS("blaster", "top")}`;
+                    // };
                 }
             });
         }
         // this.blaster.currentAmmo[ammoString].count.push(newProjectile);
     },
     updateLaser: function () { // TODO: make loop for all projectiles or make a method of laser/bomb:
-        
+
         // console.log("gameArrays.blaster.currentAmmo");
         // console.log(gameArrays.blaster.currentAmmo.laser);
 
@@ -563,8 +912,7 @@ let gameArrays = {
         // };
     },
     blasterCannon: {
-        // x: canv.width / 2,
-        // y: canv.height / 2,
+
         a: 90 / 180 * Math.PI, // convert to radians
         r: 150 / 2,
         blinkNum: Math.ceil(3 / 0.1),
@@ -863,6 +1211,7 @@ function startGame() {
     // get level from local storage?
 
     startBtn.style.display = "none";
+    afterLoading();
     gameArrays.updateLevel(currentLevel);
     gameArrays.displayMsg("show", "begin");
     // ("show", "end"):
