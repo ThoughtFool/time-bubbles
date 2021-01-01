@@ -19,11 +19,12 @@ function afterLoading() {
 
     let blasterObj = {
         x: (myTestBlasterCoords.width * 0.5) | 0,
-        y: (myTestBlasterCoords.height * 0.5) | 0,
+        y: (myTestBlasterCoords.height) | 0,
         dx: 0.0,
         dy: 0.0,
         angle: 0.0,
         radius: 17.5,
+        // radius: 141.5,
 
         tick: function (angle) {
             this.angle = angle;
@@ -34,9 +35,29 @@ function afterLoading() {
             var dy = mouseY - this.y;
             this.angle = Math.atan2(dy, dx);
         }
+        // bulletMoveMethod: function (projectile, index) {
+        //     let laserID = `laser-${index}`;
+
+        //     function loop() {
+
+        //         let myLaser = document.getElementById(laserID);
+        //         let myLaserCoords = myLaser.getBoundingClientRect();
+
+        //         let newPosX = myLaserCoords.left += projectile.dx;
+        //         let newPosY = myLaserCoords.top += projectile.dy;
+
+        //         myLaser.style.left = `${newPosX}px`;
+        //         myLaser.style.top = `${newPosY}px`;
+
+        //         // bullet.render();
+        //         // player.render();
+        //         requestAnimationFrame(loop);
+        //     };
+        // }
     };
 
     let bullet = {
+        id: "",
         x: (myTestBlasterCoords.width * 0.5) | 0,
         y: (myTestBlasterCoords.height * 0.5) | 0,
         dx: 0.0,
@@ -57,13 +78,13 @@ function afterLoading() {
         }
     };
 
-    function updateBeam(projectile, testCounter) {
+    function updateBeam(projectile, projectileCount) {
     // TODO: make loop for all projectiles or make a method of laser/bomb:
 
         console.log("???");
-        console.log(testCounter);
+        console.log(projectileCount);
 
-        if (testCounter < 1) {
+        // if (testCounter < 1) {
 
             let gamescreen = document.getElementById("game-screen");
             
@@ -71,12 +92,12 @@ function afterLoading() {
             laserBeam.className = "laser-beam";
             
             // TODO: create dynamic counter for ids:
-            let laserID = "laser-0";
+            let laserID = `laser-${projectileCount}`;
             // let laserID = `laser-${this.laserCount}`;
             laserBeam.id = laserID;
             gamescreen.append(laserBeam);
             
-            let myLaser = document.getElementById("laser-0");
+            let myLaser = document.getElementById(laserID);
             console.log(myLaser);
             
             myLaser.style.position = "absolute";
@@ -87,7 +108,7 @@ function afterLoading() {
             function loop() {
                 // Tick
                 // bullet.tick();
-                let myLaser = document.getElementById("laser-0");
+                let myLaser = document.getElementById(laserID);
                 let myLaserCoords = myLaser.getBoundingClientRect();
 
                 let newPosX = myLaserCoords.left += projectile.dx;
@@ -104,10 +125,8 @@ function afterLoading() {
 
             loop();
 
-            
-            console.log("yay!");
-        }
-        testCounter++;
+        // }
+        // testCounter++;
     };
 
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -158,6 +177,8 @@ function afterLoading() {
     gamescreen.addEventListener('touchstart', rotatePointer);
     gamescreen.addEventListener('mousedown', launcher);
 
+    let projectileCount = 0;
+
     function launcher() {
 
         let myTestBlaster = document.getElementById("blaster");
@@ -179,6 +200,7 @@ function afterLoading() {
         y = y / l;
 
         // Reset bullet position
+        bullet.id = projectileCount;
         bullet.x = myTestBlasterCoords.x;
         bullet.y = myTestBlasterCoords.y;
 
@@ -186,13 +208,14 @@ function afterLoading() {
         bullet.dx = x * 10.0;
         bullet.dy = y * 10.0;
 
+        projectileCount++;
+
         updateBeam({
             xPos: bullet.x,
             yPos: bullet.y,
             dx: bullet.dx,
             dy: bullet.dy
-        }, 0);
-
+        }, projectileCount);
     };
 
     // function loop() {
@@ -613,37 +636,37 @@ let gameArrays = {
                 xVel: 0,
                 yVel: 0,
                 type: ammoString,
-                updateBeam: function () { // TODO: make loop for all projectiles or make a method of laser/bomb:
-                    let rads = projectile.angle * Math.PI / 180;
-                    // let rads = projectile.angle / Math.PI * 180;
-                    let myLaser = document.getElementById("laser-0");
+                // updateBeam: function () { // TODO: make loop for all projectiles or make a method of laser/bomb:
+                //     let rads = projectile.angle * Math.PI / 180;
+                //     // let rads = projectile.angle / Math.PI * 180;
+                //     let myLaser = document.getElementById("laser-0");
 
-                    myLaser.style.position = "absolute"
+                //     myLaser.style.position = "absolute"
 
-                    console.log("projectile.xPos");
-                    console.log(projectile.xPos);
-                    console.log("projectile.yPos");
-                    console.log(projectile.yPos);
+                //     console.log("projectile.xPos");
+                //     console.log(projectile.xPos);
+                //     console.log("projectile.yPos");
+                //     console.log(projectile.yPos);
 
-                    myLaser.style.left = `${projectile.xPos}px`;
-                    myLaser.style.top = `${projectile.yPos}px`;
+                //     myLaser.style.left = `${projectile.xPos}px`;
+                //     myLaser.style.top = `${projectile.yPos}px`;
 
-                    // velocity:
-                    console.log("rads");
-                    console.log(rads);
+                //     // velocity:
+                //     console.log("rads");
+                //     console.log(rads);
 
-                    projectile.xPos -= Math.cos(rads) * projectile.speed;
-                    projectile.yPos -= Math.sin(rads) * projectile.speed;
+                //     projectile.xPos -= Math.cos(rads) * projectile.speed;
+                //     projectile.yPos -= Math.sin(rads) * projectile.speed;
 
-                    // TODO: testing ONLY (id):
+                //     // TODO: testing ONLY (id):
 
-                    // this.xPos += this.dx;
-                    // this.yPos += this.dy;
-                    // this.movePos = function () {
-                    //     myLaser.style.left = `${this.getCSS("blaster", "left")}`;
-                    //     myLaser.style.top = `${this.getCSS("blaster", "top")}`;
-                    // };
-                }
+                //     // this.xPos += this.dx;
+                //     // this.yPos += this.dy;
+                //     // this.movePos = function () {
+                //     //     myLaser.style.left = `${this.getCSS("blaster", "left")}`;
+                //     //     myLaser.style.top = `${this.getCSS("blaster", "top")}`;
+                //     // };
+                // }
             });
 
         } else if (ammoString === "bomb") {
@@ -657,35 +680,35 @@ let gameArrays = {
                 xVel: 0,
                 yVel: 0,
                 type: ammoString,
-                updateBeam: function () {
+                // updateBeam: function () {
 
-                    // let rads = this.angle / Math.PI * 180;
-                    let rads = this.blaster.angle * Math.PI / 180;
+                //     // let rads = this.angle / Math.PI * 180;
+                //     let rads = this.blaster.angle * Math.PI / 180;
 
-                    console.log("rads!");
-                    console.log(this.xPos);
-                    console.log(this.yPos);
+                //     console.log("rads!");
+                //     console.log(this.xPos);
+                //     console.log(this.yPos);
 
-                    let myLaser = document.getElementById("laser-0");
+                //     let myLaser = document.getElementById("laser-0");
 
-                    myLaser.style.position = "absolute"
+                //     myLaser.style.position = "absolute"
 
-                    myLaser.style.left = `${this.xPos}px`;
-                    myLaser.style.top = `${this.yPos}px`;
+                //     myLaser.style.left = `${this.xPos}px`;
+                //     myLaser.style.top = `${this.yPos}px`;
 
-                    // velocity:
-                    this.xPos -= Math.cos(rads) * this.speed;
-                    this.yPos -= Math.sin(rads) * this.speed;
+                //     // velocity:
+                //     this.xPos -= Math.cos(rads) * this.speed;
+                //     this.yPos -= Math.sin(rads) * this.speed;
 
-                    // TODO: testing ONLY (id):
+                //     // TODO: testing ONLY (id):
 
-                    // this.xPos += this.dx;
-                    // this.yPos += this.dy;
-                    // this.movePos = function () {
-                    //     myLaser.style.left = `${this.getCSS("blaster", "left")}`;
-                    //     myLaser.style.top = `${this.getCSS("blaster", "top")}`;
-                    // };
-                }
+                //     // this.xPos += this.dx;
+                //     // this.yPos += this.dy;
+                //     // this.movePos = function () {
+                //     //     myLaser.style.left = `${this.getCSS("blaster", "left")}`;
+                //     //     myLaser.style.top = `${this.getCSS("blaster", "top")}`;
+                //     // };
+                // }
             });
         }
         // this.blaster.currentAmmo[ammoString].count.push(newProjectile);
