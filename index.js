@@ -83,6 +83,13 @@ function afterLoading() {
                 let myLaser = document.getElementById(this.id);
                 myLaser.parentNode.removeChild(myLaser);
                 return false;
+            } else if (this.x + this.radius < 0.0) {
+                this.dx = 0.0;
+                this.dy = 0.0;
+
+                let myLaser = document.getElementById(this.id);
+                myLaser.parentNode.removeChild(myLaser);
+                return false;
             };
             return true;
         }
@@ -116,6 +123,7 @@ function afterLoading() {
         myLaser.style.top = `${projectile.yPos}px`;
 
         let exists = true;
+        let bubbleBlasted = "";
 
         function loop() {
 
@@ -133,6 +141,13 @@ function afterLoading() {
                 // player.render();
 
                 exists = bullet.tick();
+                bubbleBlasted = coordChecker(laserID);
+                if (typeof bubbleBlasted != "undefined") {
+                    console.log(bubbleBlasted);
+                    exists = false;
+
+                    // TODO: remove function: remove elem for laser and bubble, also splice from both arrays
+                };
 
                 // if (exists != false) {
                 requestAnimationFrame(loop);
@@ -1111,14 +1126,14 @@ function startLevel(levelOver, gameStatus) {
 
 
                         // // if (bubbleArrElem.left < bubbleCoords.right + this.radius + (bubbleArrElem.width / 2) &&
-                        // // if (bubbleArrElem.left < bubbleCoords.right &&
-                        // //     bubbleArrElem.right > bubbleCoords.left &&
-                        // //     bubbleArrElem.top < bubbleCoords.bottom &&
-                        // //     bubbleArrElem.bottom > bubbleCoords.top) {
-                        //         // this.dx *= -1;
-                        //         // this.dy *= -1;
-                        //         // return otherBubblesArr[i].id;
-                        // // };
+                        if (bubbleArrElem.left < bubbleCoords.right &&
+                            bubbleArrElem.right > bubbleCoords.left &&
+                            bubbleArrElem.top < bubbleCoords.bottom &&
+                            bubbleArrElem.bottom > bubbleCoords.top) {
+                                this.dx *= -1;
+                                this.dy *= -1;
+                                return otherBubblesArr[i].id;
+                        };
 
                         // if ((this.dx == 1)) {
                         //     if ((bubbleCoords.right == bubbleArrElem.left)) {
@@ -1187,6 +1202,7 @@ function startLevel(levelOver, gameStatus) {
         // console.log(bubbleObject);
 
         async function gameLoopTest() { // draw() 
+            // alert("hi");
             // draw the dom elems:
             // let gamescreen = document.getElementById("game-screen");
             // let gamescreenCoords = gamescreen.getBoundingClientRect();
@@ -1258,3 +1274,20 @@ function hideBlaster(bool) {
 
     };
 ;}
+
+function coordChecker(laserID) {
+    let laserBeam = document.getElementById(laserID);
+    let laserBeamCoords = laserBeam.getBoundingClientRect();
+    // let itemBoxArray = document.querySelectorAll(".item-box");
+    for (let i = 0; i < bubbleArray.length; i++) {
+        let bubbleArrElem = document.getElementById(`${bubbleArray[i].id}`);
+        let bubbleArrItem = bubbleArrElem.getBoundingClientRect();
+
+        if (bubbleArrItem.left < laserBeamCoords.right &&
+            bubbleArrItem.right > laserBeamCoords.left &&
+            bubbleArrItem.top < laserBeamCoords.bottom &&
+            bubbleArrItem.bottom > laserBeamCoords.top) {
+            return bubbleArray[i].id;
+        };
+    };
+};
