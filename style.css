@@ -133,14 +133,12 @@ body {
 .turret {
     display: none;
     background-image: radial-gradient(farthest-corner at 10px 0, rgb(12, 11, 12), rgb(166, 119, 253));
-    /* background-color: black; */
     border-radius: 50%;
     position: absolute;
     left: calc(100vw / 2 - 50px);
     top: calc(100vh / 2 - 50px);
     width: 100px;
     height: 100px;
-    /* transform-origin: center 50%; */
 }
 
 .wing {
@@ -149,8 +147,7 @@ body {
     border-radius: 50%;
     position: absolute;
     left: calc(100vw / 2 - 80px);
-    top: calc(100vh / 2 - 35px);
-    /* transform: translate(-125px, 15px); */
+    top: calc(100vh / 2 - 30px);
     width: 50px;
     height: 50px;
     border-top: 55px solid rgba(51, 21, 51, 0.856);
@@ -162,7 +159,7 @@ body {
 .shockwave {
     box-shadow: 0 0 0 rgba(79, 228, 248, 0.4);
     border-radius: 100%;
-    animation: wave 2s;
+    animation: wave 3.5s;
     transition: .5s all;
 }
 
@@ -174,32 +171,19 @@ body {
     transform: translate(25px, 15px);
     border-radius: 70%;
     border-top: 5px solid rgb(255, 0, 200);
-    /* cool shape: */
-    /* border-top: 150px solid blueviolet;
-    border-left: 25px solid transparent;
-    border-right: 25px solid transparent; */
 }
 
 #blaster {
     display: none;
     background-image: radial-gradient(farthest-corner at 10px 0, rgba(31, 27, 32, 0.808), rgba(170, 230, 248, 0.698), rgb(37, 2, 70));
     position: absolute;
-    /* radius? */
     left: calc(100vw / 2); 
     top: calc(100vh / 2);
-    /* left: 50px; */
-    /* bottom: 50px; */
     width: 50px;
     height: 150px;
-    /* border-radius: 50px 50px 250px 250px; */
-    /* z-index:1; */
-    /* transform: rotate(45deg); */
-
     width: 0;
     height: 0;
     touch-action: none;
-
-    /* transform-origin: bottom center; */
 }
 
 .laser-beam {
