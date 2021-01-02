@@ -81,7 +81,7 @@ body {
     top: 80%;
 }
 
-.turret {
+/* .turret {
     display: none;
     background-image: radial-gradient(farthest-corner at 10px 0, rgb(31, 27, 32), rgb(170, 230, 248));
     border-radius: 0 100% 0 0;
@@ -90,6 +90,94 @@ body {
     bottom: 0px;
     width: 100px;
     height: 100px;
+} */
+.hit-box {
+    display: none;
+    border-radius: 50%;
+    position: absolute;
+    left: calc(100vw / 2 - 50px);
+    top: calc(100vh / 2 - 50px);
+    width: 100px;
+    height: 100px;
+    /* animation: cubic-bezier(0.175, 0.885, 0.32, 1.275); */
+    animation: field 1.5s infinite;
+    transition: .5s all ease-in;
+}
+
+@keyframes field {
+    0% {
+        box-shadow: inset 50 0 0px rgba(255, 255, 255, 0.473),
+        inset 20px 0 60px #a166ab,
+        inset -20px 0 60px #07b39c6e,
+        inset 20px 0 300px #a166ab8a,
+        inset -20px 0 300px #07b39c6e,
+        0 0 50px rgba(255, 255, 255, 0.623),
+        -10px 0 60px #a166ab3f,
+        10px 0 60px #07b39c49;
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+        box-shadow: inset 0 0 50px rgba(255, 255, 255, 0.473),
+            inset -20px 0 60px #a166ab,
+            inset 20px 0 60px #07b39c6e,
+            inset -20px 0 300px #a166ab8a,
+            inset 20px 0 300px #07b39c6e,
+            0 0 150px rgba(255, 255, 255, 0.623),
+            10px 0 60px #a166ab3f,
+            -10px 0 60px #07b39c49;
+    }
+}
+
+.turret {
+    display: none;
+    background-image: radial-gradient(farthest-corner at 10px 0, rgb(12, 11, 12), rgb(166, 119, 253));
+    /* background-color: black; */
+    border-radius: 50%;
+    position: absolute;
+    left: calc(100vw / 2 - 50px);
+    top: calc(100vh / 2 - 50px);
+    width: 100px;
+    height: 100px;
+    /* transform-origin: center 50%; */
+}
+
+.wing {
+    display: none;
+    position: absolute;
+    border-radius: 50%;
+    position: absolute;
+    left: calc(100vw / 2 - 80px);
+    top: calc(100vh / 2 - 35px);
+    /* transform: translate(-125px, 15px); */
+    width: 50px;
+    height: 50px;
+    border-top: 55px solid rgba(51, 21, 51, 0.856);
+    border-left: 55px solid transparent;
+    border-right: 55px solid transparent;
+    transform-origin: center 30px;
+}
+
+.shockwave {
+    box-shadow: 0 0 0 rgba(79, 228, 248, 0.4);
+    border-radius: 100%;
+    animation: wave 2s;
+    transition: .5s all;
+}
+
+#cross-hair {
+    position: relative;
+    display: none;
+    width: 50px;
+    height: 50px;
+    transform: translate(25px, 15px);
+    border-radius: 70%;
+    border-top: 5px solid rgb(255, 0, 200);
+    /* cool shape: */
+    /* border-top: 150px solid blueviolet;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent; */
 }
 
 #blaster {
@@ -102,17 +190,13 @@ body {
     /* left: 50px; */
     /* bottom: 50px; */
     width: 50px;
-    height: 125px;
-    border-radius: 50px 50px 250px 250px;
-    z-index:1;
+    height: 150px;
+    /* border-radius: 50px 50px 250px 250px; */
+    /* z-index:1; */
     /* transform: rotate(45deg); */
 
-    /* width: 0;
-    height: 0; */
-    /* border-top: 100px solid red;
-    border-right: 100px solid transparent; */
-    /* transform: rotate(360deg); */
-    transform-origin: center 59%;
+    width: 0;
+    height: 0;
     touch-action: none;
 
     /* transform-origin: bottom center; */
@@ -122,8 +206,31 @@ body {
     position: absolute;
     width: 25px;
     height: 25px;
-    background-image: radial-gradient(farthest-corner at 10px 0, rgb(31, 27, 32), rgb(170, 230, 248));
     border-radius: 50%;
+    /* animation: plasma 2s infinite;
+    transition: .5s all; */
+    animation:barrier 4s linear infinite;
+    box-shadow: inset 0 0 50px #fff,
+    inset 20px 0 60px #a166ab,
+    inset -20px 0 60px #07b39b,
+    inset 20px 0 300px #a166ab,
+    inset -20px 0 300px #07b39b,
+    0 0 50px #fff,
+    -10px 0 60px #a166ab,
+    10px 0 60px #07b39b;
+}
+
+.laser-beam:after {
+        
+        border-radius: 50%;
+        box-shadow: inset 0 0 50px #fff,
+        inset 20px 0 60px #a166ab,
+        inset -20px 0 60px #07b39b,
+        inset 20px 0 300px #a166ab,
+        inset -20px 0 300px #07b39b,
+        0 0 50px #fff,
+        -10px 0 60px #a166ab,
+        10px 0 60px #07b39b;
 }
 
 .bubble {
@@ -132,6 +239,13 @@ body {
     box-shadow: 0 0 0 rgba(79, 228, 248, 0.4);
     animation: pulse 2s infinite;
     transition: .5s all;
+}
+
+@keyframes spin {
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes pulse {
@@ -148,5 +262,26 @@ body {
     100% {
         -moz-box-shadow: 0 0 0 0 rgba(204, 169, 44, 0);
         box-shadow: 0 0 0 0 rgba(204, 169, 44, 0);
+    }
+}
+
+@keyframes wave {
+    0% {
+        -moz-box-shadow: 0 0 0 0 rgba(118, 68, 177, 0.712);
+        box-shadow: 0 0 0 0 rgba(118, 68, 177, 0.712);
+        box-shadow: 0 0 0 75px rgba(54, 6, 63, 0.787);
+    }
+
+    70% {
+        -moz-box-shadow: 0 0 0 250px rgba(47, 44, 204, 0.596);
+        box-shadow: 0 0 0 250px rgba(47, 44, 204, 0.596);
+        box-shadow: 0 0 0 50px rgba(161, 68, 177, 0.26);
+
+    }
+
+    100% {
+        -moz-box-shadow: 0 0 0 0 drgba(210, 10, 245, 0.486);
+        box-shadow: 0 0 0 0 rgba(210, 10, 245, 0.486);
+        box-shadow: 0 0 0 0 rgba(230, 246, 2, 0.24);
     }
 }

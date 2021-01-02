@@ -28,6 +28,8 @@ function afterLoading() {
 
         tick: function (angle) {
             this.angle = angle;
+            myTestBlaster.style.transform = `translate(${50}px, ${-50}px)`;
+
             // this.angle = Math.atan2(mouseY - this.y, mouseX - this.x);
         },
         update: function (mouseX, mouseY) {
@@ -169,8 +171,16 @@ function afterLoading() {
         // var mouse_y = e.pageY;
         // var radians = Math.atan2(mouse_x - center_x, mouse_y - center_y);
         // var degrees = (radians * (180 / Math.PI) * -1) + 90;
+        let crossHair = document.getElementById("cross-hair");
+        let myTurret = document.querySelector(".turret");
+        let wing = document.querySelector(".wing");
 
         myTestBlaster.style.transform = `rotate(${degrees}deg)`;
+        // crossHair.style.transform = `translateY(${25}px)`;
+        // crossHair.style.transform = `rotate(${degrees}deg)`;
+        myTurret.style.transform = `rotate(${degrees}deg)`;
+        wing.style.transform = `rotate(${degrees}deg)`;
+
     };
     gamescreen.addEventListener('mousemove', rotatePointer);
     gamescreen.addEventListener('touchmove', rotatePointer);
@@ -1216,8 +1226,15 @@ async function naviCtrl(value) {
         gameArrays.shootBlaster(ammoString);
 
     } else if (value.key === "d" || value.key === "D") {
-        let ammoString = "bomb";
-        gameArrays.shootBlaster(ammoString);
+        let hitBox = document.querySelector(".hit-box");
+
+        hitBox.classList.add("shockwave");
+        setTimeout(() => {
+            hitBox.classList.remove("shockwave");
+        }, 1000);
+        
+        // let ammoString = "bomb";
+        // gameArrays.shootBlaster(ammoString);
 
     } else {
         console.log(`value.key: ${value.key}`);
@@ -1249,8 +1266,26 @@ function startLevel(levelOver, gameStatus) {
 
         let myBlaster = document.getElementById("blaster");
         myBlaster.style.display = "block";
+        let myBlasterCoords = myBlaster.getBoundingClientRect();
+        console.log("myBlasterCoords: start");
+        console.log(myBlasterCoords);
+
         let turret = document.querySelector(".turret");
         turret.style.display = "block";
+        // let turretCoords = myBlaster.getBoundingClientRect();
+
+        let crossHair = document.querySelector("#cross-hair");
+        crossHair.style.display = "block";
+
+        let wing = document.querySelector(".wing");
+        wing.style.display = "block";
+
+        let hitBox = document.querySelector(".hit-box");
+        hitBox.style.display = "block";
+
+        
+        // crossHair.style.left = `${turretCoords.left + 25}px`;
+        // crossHair.style.top = `${turretCoords.top - 25}px`;
 
         let count = 0,
             deployed = gameArrays.enterLevel();
