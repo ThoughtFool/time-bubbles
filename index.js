@@ -1,3 +1,62 @@
+class Bullet {
+    constructor(id, x, y, angle, speed, ammoString, height, width, ready) {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.angle = angle;
+        this.speed = speed;
+        this.ammoString = ammoString;
+        this.height = height;
+        this.width = width;
+        this.ready = ready;
+        this.dx = 0.0;
+        this.dy = 0.0;
+        this.radius = 5.0;
+    };
+
+    tick() {
+        this.x += this.dx;
+        this.y += this.dy;
+
+        let gamescreenCoords = gamescreen.getBoundingClientRect();
+
+        if (this.x + this.radius < 0.0 ||
+            this.x - this.radius > gamescreenCoords.right ||
+            this.y + this.radius < 0.0 ||
+            this.y - this.radius > gamescreenCoords.bottom) {
+
+            this.dx = 0.0;
+            this.dy = 0.0;
+
+            let myLaser = document.getElementById(this.id);
+            myLaser.parentNode.removeChild(myLaser);
+            return false;
+        } else if (this.x + this.radius < 0.0) {
+
+            bubbleBlasted = coordChecker(laserID, bubbleArray);
+            if (typeof bubbleBlasted != "undefined") {
+
+                function removeElem(elemID) {
+                    let elem = document.getElementById(elemID);
+                    elem.parentNode.removeChild(elem);
+                };
+
+                removeElem(laserID);
+                exists = false;
+
+
+                this.dx = 0.0;
+                this.dy = 0.0;
+
+                let myLaser = document.getElementById(this.id);
+                myLaser.parentNode.removeChild(myLaser);
+                return false;
+            };
+            return true;
+        };
+    };
+};
+
 function afterLoading() {
 
     // let gamescreen = document.getElementById("game-screen");
@@ -84,34 +143,40 @@ function afterLoading() {
                 myLaser.parentNode.removeChild(myLaser);
                 return false;
             } else if (this.x + this.radius < 0.0) {
-                this.dx = 0.0;
-                this.dy = 0.0;
 
-                let myLaser = document.getElementById(this.id);
-                myLaser.parentNode.removeChild(myLaser);
-                return false;
+                bubbleBlasted = coordChecker(laserID, bubbleArray);
+                if (typeof bubbleBlasted != "undefined") {
+
+                    function removeElem(elemID) {
+                        let elem = document.getElementById(elemID);
+                        elem.parentNode.removeChild(elem);
+                    };
+
+                    removeElem(laserID);
+                    exists = false;
+
+
+                    this.dx = 0.0;
+                    this.dy = 0.0;
+
+                    let myLaser = document.getElementById(this.id);
+                    myLaser.parentNode.removeChild(myLaser);
+                    return false;
+                };
+                return true;
             };
-            return true;
-        }
+        },
     };
 
-    function updateBeam(projectile, projectileCount) {
+    function updateBeam(projectile) {
         // TODO: make loop for all projectiles or make a method of laser/bomb:
 
-        console.log("???");
-        console.log(projectileCount);
-
-        // if (testCounter < 1) {
-
         let gamescreen = document.getElementById("game-screen");
-
         let laserBeam = document.createElement("div");
         laserBeam.className = "laser-beam";
 
-        // TODO: create dynamic counter for ids:
-        // let laserID = `laser-${projectileCount}`;
         let laserID = projectile.id;
-        laserBeam.id = projectile.id;
+        laserBeam.id = laserID;
         gamescreen.append(laserBeam);
 
         let myLaser = document.getElementById(laserID);
@@ -122,12 +187,12 @@ function afterLoading() {
         myLaser.style.left = `${projectile.xPos}px`;
         myLaser.style.top = `${projectile.yPos}px`;
 
-        let exists = true;
+        let exists = "";
         let bubbleBlasted = "";
 
         function loop() {
 
-            if (exists != false) {
+            if (exists != "explode") {
                 let myLaser = document.getElementById(laserID);
                 let myLaserCoords = myLaser.getBoundingClientRect();
 
@@ -141,21 +206,26 @@ function afterLoading() {
                 // player.render();
 
                 exists = bullet.tick();
-                bubbleBlasted = coordChecker(laserID);
-                if (typeof bubbleBlasted != "undefined") {
-                    console.log(bubbleBlasted);
+
+                bubbleBlasted = coordChecker(laserID, bubbleArray);
+                if (typeof bubbleBlasted != "undefined" && bubbleBlasted === "explode") {
+
+                    removeElem(laserID);
                     exists = false;
 
+                    // removeElem(bubbleBlasted);
+                    // removeBubbleItem(bubbleIndex);
+
                     // TODO: remove function: remove elem for laser and bubble, also splice from both arrays
+                } else {
+                    requestAnimationFrame(loop);
                 };
 
                 // if (exists != false) {
-                requestAnimationFrame(loop);
+                // };
             };
         };
-
         loop();
-
         // }
         // testCounter++;
     };
@@ -224,10 +294,7 @@ function afterLoading() {
 
             let ammoString = "laser";
 
-            if (gameArrays.blaster.currentAmmo[ammoString].count.length > 0) {
-
-                let ammoString = "laser";
-                gameArrays.shootBlaster(ammoString);
+            if (gameArrays.blaster.currentAmmo[ammoString].count.length >= 1) {
 
                 let myTestBlaster = document.getElementById("blaster");
                 let myTestBlasterCoords = myTestBlaster.getBoundingClientRect();
@@ -240,32 +307,41 @@ function afterLoading() {
                 let x = mouseX - myTestBlasterCoords.x;
                 let y = mouseY - myTestBlasterCoords.y;
 
-                // Using pythagoras' theorm to find the distance (the length of the vector)
-                let l = Math.sqrt(x * x + y * y);
+                // (the length of the vector)
+                let vectorLength = Math.sqrt(x * x + y * y);
 
                 // Dividing by the distance gives a normalized vector whose length is 1
-                x = x / l;
-                y = y / l;
+                x = x / vectorLength;
+                y = y / vectorLength;
 
-                // Reset bullet position
-                let laserID = `laser-${projectileCount}`;
-                bullet.id = laserID;
-                bullet.x = myTestBlasterCoords.x;
-                bullet.y = myTestBlasterCoords.y;
+                let indexReady = gameArrays.blaster.currentAmmo[ammoString].count.findIndex(isReady);
+
+                // console.log("readyToDeploy");
+                // console.log(gameArrays.blaster.currentAmmo[ammoString].count[0].ready);
+                // console.log(gameArrays.blaster.currentAmmo[ammoString].count)
+                // console.log(readyToDeploy);
+
+                let laserID = gameArrays.blaster.currentAmmo[ammoString].count[indexReady].id;
+                // getArrayItemById(laserID, gameArrays.blaster.currentAmmo[ammoString].count);
+                gameArrays.blaster.currentAmmo[ammoString].count[indexReady].id = laserID;
+                gameArrays.blaster.currentAmmo[ammoString].count[indexReady].x = myTestBlasterCoords.x;
+                gameArrays.blaster.currentAmmo[ammoString].count[indexReady].y = myTestBlasterCoords.y;
 
                 // Get the bullet to travel towards the mouse pos with a new speed of 10.0 (you can change this)
-                bullet.dx = x * 10.0;
-                bullet.dy = y * 10.0;
+                gameArrays.blaster.currentAmmo[ammoString].count[indexReady].dx = x * 10.0;
+                gameArrays.blaster.currentAmmo[ammoString].count[indexReady].dy = y * 10.0;
 
-                updateBeam({
-                    xPos: bullet.x,
-                    yPos: bullet.y,
-                    dx: bullet.dx,
-                    dy: bullet.dy,
-                    id: bullet.id
-                }, projectileCount);
+                // updateBeam({
+                //     xPos: bullet.x,
+                //     yPos: bullet.y,
+                //     dx: bullet.dx,
+                //     dy: bullet.dy,
+                //     id: bullet.id
+                // });
+                updateBeam(gameArrays.blaster.currentAmmo[ammoString].count[indexReady]);
 
-                projectileCount++;
+                gameArrays.shootBlaster(ammoString);
+                // projectileCount++;
 
             } else {
                 alert("You don't have any ammo!");
@@ -408,6 +484,7 @@ let gameArrays = {
         rotateSpeed: 0.001
     },
     laserCount: 0,
+    bombCount: 0,
     moveBlaster: function (direction) {
         let myBlaster = document.getElementById("blaster");
         myBlaster.style.position = "absolute";
@@ -500,23 +577,28 @@ let gameArrays = {
         let xPos = this.blaster.noseX,
             yPos = this.blaster.noseY;
 
-        let projectile;
-
         if (ammoString === "laser") {
-            this.blaster.currentAmmo[ammoString].count.push(projectile = {
-                xPos: xPos,
-                yPos: yPos,
-                angle: angle,
-                height: 4,
-                width: 4,
-                speed: 25,
-                xVel: 0,
-                yVel: 0,
-                type: ammoString,
-                // updateBeam: function () { // TODO: make loop for all projectiles or make a method of laser/bomb:
-            });
+            let laserID = `${ammoString}-${this.laserCount}`;
+            let newLaser = new Bullet(laserID, xPos, yPos, angle, 25, ammoString, 4, 4, true);
+            this.blaster.currentAmmo[ammoString].count.push(newLaser);
+            console.log(this.blaster.currentAmmo[ammoString].count[0].id);
+            // this.blaster.currentAmmo[ammoString].count.push(projectile = {
+            //     xPos: xPos,
+            //     yPos: yPos,
+            //     angle: angle,
+            //     height: 4,
+            //     width: 4,
+            //     speed: 25,
+            //     xVel: 0,
+            //     yVel: 0,
+            //     type: ammoString,
+            //     id: laserID
+            //     // updateBeam: function () { // TODO: make loop for all projectiles or make a method of laser/bomb:
+            // });
+            this.laserCount++;
 
         } else if (ammoString === "bomb") {
+            let bombID = `${ammoString}-${this.bombCount}`;
             this.blaster.currentAmmo[ammoString].count.push({
                 xPos: xPos,
                 yPos: yPos,
@@ -527,12 +609,14 @@ let gameArrays = {
                 xVel: 0,
                 yVel: 0,
                 type: ammoString,
+                id: bombID
                 // updateBeam: function () {
             });
-        }
+            this.bombCount++;
+        };
         // this.blaster.currentAmmo[ammoString].count.push(newProjectile);
     },
-    updateLaser: function () { 
+    updateLaser: function () {
         // TODO: make loop for all projectiles or make a method of laser/bomb:
     },
     updateHistory: function () {
@@ -857,6 +941,7 @@ async function naviCtrl(value) {
 };
 
 const bubbleArray = [];
+const weaponArray = [];
 let currentLevel = 0;
 
 // testing event loop:
@@ -1064,6 +1149,7 @@ function startLevel(levelOver, gameStatus) {
                 //     this.dy *= -1;
                 //     // this.yPos += this.dy;
                 // };
+                // coordChecker(this.id, weaponArray);
 
                 // velocity:
                 this.xPos += this.dx;
@@ -1071,10 +1157,35 @@ function startLevel(levelOver, gameStatus) {
             };
             this.movePos = function () {
                 this.bubbleElem = document.getElementById(this.id);
-                this.bubbleElem.style.left = `${this.xPos}px`;
-                this.bubbleElem.style.top = `${this.yPos}px`;
+                if (typeof this.bubbleElem != "null") {
+                    this.bubbleElem.style.left = `${this.xPos}px`;
+                    this.bubbleElem.style.top = `${this.yPos}px`;
+                };
             };
-            this.coordChecker = function () {
+            // check bubble collisions with laser array:
+            this.coordChecker = function (elemID, arrayToCheck) {
+                let elem = document.getElementById(elemID);
+                console.log("elemID");
+                console.log(elemID);
+                if (typeof elem != "null" && arrayToCheck.length > 0) {
+                    let elemCoords = elem.getBoundingClientRect();
+                    // let itemBoxArray = document.querySelectorAll(".item-box");
+                    for (let i = 0; i < arrayToCheck.length; i++) {
+                        // alert(arrayToCheck[i].id);
+                        let arrElem = document.getElementById(`${arrayToCheck[i].id}`);
+                        let arrItem = arrElem.getBoundingClientRect();
+
+                        if (arrItem.left < elemCoords.right &&
+                            arrItem.right > elemCoords.left &&
+                            arrItem.top < elemCoords.bottom &&
+                            arrItem.bottom > elemCoords.top) {
+                            console.log(arrayToCheck[i].id);
+                            return "explode";
+                        };
+                    };
+                };
+            };
+            this.coordChecker2 = function () {
                 this.bubbleElem = document.getElementById(this.id);
                 // updateCoords method
                 // let bubbleCoords = this.bubbleElem.getBoundingClientRect();
@@ -1130,9 +1241,9 @@ function startLevel(levelOver, gameStatus) {
                             bubbleArrElem.right > bubbleCoords.left &&
                             bubbleArrElem.top < bubbleCoords.bottom &&
                             bubbleArrElem.bottom > bubbleCoords.top) {
-                                this.dx *= -1;
-                                this.dy *= -1;
-                                return otherBubblesArr[i].id;
+                            this.dx *= -1;
+                            this.dy *= -1;
+                            return otherBubblesArr[i].id;
                         };
 
                         // if ((this.dx == 1)) {
@@ -1196,6 +1307,22 @@ function startLevel(levelOver, gameStatus) {
                 // this.bubbleElem.style.left = `${this.xPos}px`;
                 // this.bubbleElem.style.top = `${this.yPos}px`;
             };
+            this.wallChecker = function (boundaryID) {
+                let boundaryElem = document.getElementById(boundaryID);
+                let boundaryCoords = boundaryElem.getBoundingClientRect();
+                if (this.x + this.radius < 0.0 ||
+                    this.x - this.radius > boundaryCoords.right ||
+                    this.y + this.radius < 0.0 ||
+                    this.y - this.radius > boundaryCoords.bottom) {
+
+                    this.dx = 0.0;
+                    this.dy = 0.0;
+
+                    let myLaser = document.getElementById(this.id);
+                    myLaser.parentNode.removeChild(myLaser);
+                    return false;
+                }
+            };
         };
 
         // let bubbleObject = new bubbleBuilder(10, 10, 5, 2, -2, "bubble-0");
@@ -1216,7 +1343,7 @@ function startLevel(levelOver, gameStatus) {
             for (let i = 0; i < bubbleArray.length; i++) {
                 // console.log("bubbleArray[i].updatePos('game-screen')");
                 await bubbleArray[i].updatePos("game-screen");
-                // await bubbleArray[i].coordChecker();
+                // await bubbleArray[i].coordChecker(bubbleArray[i].id, gameArrays.blaster.currentAmmo.laser.count);
                 await bubbleArray[i].movePos();
             };
 
@@ -1257,7 +1384,7 @@ function hideBlaster(bool) {
 
         let hitBox = document.querySelector(".hit-box");
         hitBox.style.display = "none";
-        
+
     } else {
         let turret = document.querySelector(".turret");
         turret.style.display = "block";
@@ -1273,21 +1400,53 @@ function hideBlaster(bool) {
         hitBox.style.display = "block";
 
     };
-;}
+};
 
-function coordChecker(laserID) {
-    let laserBeam = document.getElementById(laserID);
-    let laserBeamCoords = laserBeam.getBoundingClientRect();
-    // let itemBoxArray = document.querySelectorAll(".item-box");
-    for (let i = 0; i < bubbleArray.length; i++) {
-        let bubbleArrElem = document.getElementById(`${bubbleArray[i].id}`);
-        let bubbleArrItem = bubbleArrElem.getBoundingClientRect();
+function removeElem(elemID) {
+    let elem = document.getElementById(elemID);
+    elem.parentNode.removeChild(elem);
 
-        if (bubbleArrItem.left < laserBeamCoords.right &&
-            bubbleArrItem.right > laserBeamCoords.left &&
-            bubbleArrItem.top < laserBeamCoords.bottom &&
-            bubbleArrItem.bottom > laserBeamCoords.top) {
-            return bubbleArray[i].id;
+};
+
+function getArrayItemById(elemID, arrayToSearch) {
+    arrayToSearch.filter(function (element) {
+        return element.id = elemID;
+    });
+};
+
+function isReady1(bool, arrayToSearch) {
+    arrayToSearch.filter(function (element) {
+        console.log("element");
+        console.log(element);
+        return element.ready = bool;
+    });    
+};
+
+function isReady(element) {
+    return element.ready == true;
+};
+
+
+function removeItemFromArr(index, arrayToRemoveFrom) {
+    arrayToRemoveFrom.splice(index, 1);
+};
+
+function coordChecker(elemID, arrayToCheck) {
+    let elem = document.getElementById(elemID);
+    if (typeof elem != "null") {
+        let elemCoords = elem.getBoundingClientRect();
+        // let itemBoxArray = document.querySelectorAll(".item-box");
+        for (let i = 0; i < arrayToCheck.length; i++) {
+            let arrElem = document.getElementById(`${arrayToCheck[i].id}`);
+            let arrItem = arrElem.getBoundingClientRect();
+
+            if (arrItem.left < elemCoords.right &&
+                arrItem.right > elemCoords.left &&
+                arrItem.top < elemCoords.bottom &&
+                arrItem.bottom > elemCoords.top) {
+                // return arrayToCheck[i].id;
+                return "explode";
+            };
         };
     };
 };

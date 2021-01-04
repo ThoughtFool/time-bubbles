@@ -29,6 +29,18 @@ body {
     position: absolute;
 }
 
+#game-title {
+    display: block;
+    height: auto;
+    margin: auto;
+    text-align: center;
+    color: whitesmoke;
+    position: absolute;
+    display: flex;
+    top: 30%;
+    font-size: xx-large;
+}
+
 #modal-bg {
     display: none;
     position: absolute;
