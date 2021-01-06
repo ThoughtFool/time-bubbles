@@ -685,9 +685,12 @@ let gameArrays = {
     updateLevel: function (currentLevel) {
         this.currentLevel = currentLevel;
     },
+    globalCount: 0,
     spawnHorde: function () {
         let hordeArr = [];
-        for (let i = 0; i < this.levelData[this.currentLevel].hordeNum; i++) {
+        let ceilCount = this.levelData[this.currentLevel].hordeNum + this.globalCount;
+        // alert(ceilCount);
+        for (let i = this.globalCount; i < ceilCount; i++) {
             let size = Math.random() * 30 + 15;
             let left = Math.random() * 600 + 40;
             let top = Math.random() * 500 + 40;
@@ -704,6 +707,7 @@ let gameArrays = {
             let monsterBubbleObj = new bubbleBuilder(id_, currentLevel, levelsLived, left, top, size / 2, dx, dy, bubbleID, 0.7, 10, color, size);
             bubbleArray.push(monsterBubbleObj);
             hordeArr.push(monsterBubbleObj);
+            this.globalCount = i;
         };
         return hordeArr;
     },
@@ -746,7 +750,7 @@ let gameArrays = {
         this.savedHorde.length = 0;
         this.updateHistory();
         this.deployed = this.currentHordeArr.length;
-        console.log(`deployed: ${this.deployed}, currentLevel: ${this.currentLevel}`);
+        alert(`deployed: ${this.deployed}, currentLevel: ${this.currentLevel}`);
         return this.deployed;
     },
     endLevel: function () {
@@ -887,7 +891,7 @@ let gameArrays = {
         let modal = document.getElementById("modal-bg");
         modal.style.display = "none";
         // this.enterLevel(this.currentLevel);
-        startLevel(0);
+        startLevel(0, "start fresh");
         // let timeSave = gameArrays.checkLevel(gameArrays.currentLevel);
         // let lastTimeSave = timeSave[timeSave.length - 1];
         // gameArrays.returnLevel(lastTimeSave);
@@ -895,26 +899,25 @@ let gameArrays = {
     continueMsg: function () {
         let modal = document.getElementById("modal-bg");
         modal.style.display = "none";
-        gameArrays.enterLevel(gameArrays.currentLevel);
+        // gameArrays.enterLevel(gameArrays.currentLevel);
+        startLevel(0, "continue");
     },
     returnMsg: function () {
         let modal = document.getElementById("modal-bg");
         modal.style.display = "none";
-        let timeSave = gameArrays.checkLevel(gameArrays.currentLevel);
-        let lastTimeSave = timeSave[timeSave.length - 1];
-        gameArrays.returnLevel(lastTimeSave);
+        startLevel(0, "return");
     },
     tryAgainMsg: function () {
         let modal = document.getElementById("modal-bg");
         modal.style.display = "none";
         // this.enterLevel(this.currentLevel);
-        startLevel(0);
+        startLevel(0, "start fresh");
     },
     doneMsg: function () {
         let modal = document.getElementById("modal-bg");
         modal.style.display = "none";
         // this.enterLevel(this.currentLevel);
-        startLevel(3);
+        startLevel(2);
     },
     displayMsg: function (msgStatus, msgType) {
         let modal = document.getElementById("modal-bg");
@@ -972,7 +975,7 @@ let gameArrays = {
                 startBtn.style.display = "block";
                 continueModal.style.display = "none";
                 returnModal.style.display = "none";
-                // startLevel(0);
+
             } else {
                 console.log("error");
             };
@@ -1039,7 +1042,6 @@ async function naviCtrl(value) {
         gameArrays.endLevel();
 
     } else if (value.key === "s" || value.key === "S") {
-        gameArrays.enterLevel(1);
 
     } else if (value.key === " " || value.key === "Spacebar") {
 
@@ -1079,6 +1081,7 @@ let currentLevel = 0;
 
 // testing event loop:
 function startGame() {
+    let currentLevel = 0;
 
     // get level from local storage?
 
@@ -1092,40 +1095,56 @@ function startGame() {
 
 let levelLoop;
 
-function startLevel(levelOver) {
-    // alert("level over!");
+function startLevel(levelOver, pathString) {
+    alert("starLevel():");
 
-    if (levelOver === 0) {
-
-
+    if (levelOver == 0) {
+        alert("0");
+        
         let myBlaster = document.getElementById("blaster");
         myBlaster.style.display = "block";
         let myBlasterCoords = myBlaster.getBoundingClientRect();
         console.log("myBlasterCoords: start");
         console.log(myBlasterCoords);
-
+        
         let turret = document.querySelector(".turret");
         turret.style.display = "block";
-
+        
         let crossHair = document.querySelector("#cross-hair");
         crossHair.style.display = "block";
-
+        
         let wing = document.querySelector(".wing");
         wing.style.display = "block";
 
         let hitBox = document.querySelector(".hit-box");
         hitBox.style.display = "block";
+        
+        let count = 0;
+        let deployed;
+        
+        if (pathString === "start fresh") {
+            gameArrays.gameStatus = "success";
+            deployed = gameArrays.enterLevel();
+            
+        } else if (pathString === "continue") {
+            gameArrays.gameStatus = "success";
+            deployed = gameArrays.enterLevel();
 
-        // call enterLevel(): creates/merges all horde arrays
-        let count = 0,
-        deployed = gameArrays.enterLevel();
+        } else if (pathString === "return") {
+            gameArrays.gameStatus = "success";
+            let timeSave = gameArrays.checkLevel(gameArrays.currentLevel);
+            let lastTimeSave = timeSave[timeSave.length - 1];
+            deployed = gameArrays.returnLevel(lastTimeSave);
 
-        console.log(deployed);
+        };
+
+        alert(deployed);
 
         //////////////////////// Generate Bubbles /////////////////////////////////
 
         function bubbleBlower() {
-
+            
+            // TODO: add globalCount to track previous bubbles:
             if (count < gameArrays.currentHordeArr.length) {
 
                 let gamescreen = document.querySelector("#game-screen");
@@ -1157,7 +1176,7 @@ function startLevel(levelOver) {
         // TODO: add bombs/lasers to currentAmmo object based on level selected and saved ammo from previous levels
         // TODO: add ammo counts based on relived/relaunched levels
 
-        async function gameLoopTest() { // draw() 
+        async function gameLoopTest() { // draw()
 
             // TODO: check if bubbles are all destroyed or lives used
             if (gameArrays.currentHordeArr.length != 0 && gameArrays.gameStatus !== "failure") {
@@ -1182,7 +1201,7 @@ function startLevel(levelOver) {
         };
         levelLoop = setInterval(gameLoopTest, 150);
 
-    } else if (levelOver === 1) {
+    } else if (levelOver == 1) {
         
         let gamescreen = document.getElementById("game-screen");
         gamescreen.innerHTML = "";
@@ -1203,6 +1222,7 @@ function startLevel(levelOver) {
             
         } else {
             currentLevel = 0;
+            this.globalCount = 0;
             gameArrays.updateLevel(currentLevel);
             gameArrays.displayMsg("show", "play again");
         };
