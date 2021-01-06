@@ -71,7 +71,9 @@ body {
     display: flex;
 }
 
-#ready-modal {
+#ready-modal,
+#continue-modal,
+#return-modal {
     position: absolute;
     background-image: linear-gradient(rgba(246, 244, 247, 0.808), rgb(37, 2, 70));
     color: aliceblue;
@@ -81,6 +83,8 @@ body {
     left: 65%;
     top: 80%;
 }
+
+
 
 #done-modal {
     position: absolute;

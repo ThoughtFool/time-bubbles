@@ -887,33 +887,52 @@ let gameArrays = {
         let modal = document.getElementById("modal-bg");
         modal.style.display = "none";
         // this.enterLevel(this.currentLevel);
-        startLevel(true);
+        startLevel(0);
+        // let timeSave = gameArrays.checkLevel(gameArrays.currentLevel);
+        // let lastTimeSave = timeSave[timeSave.length - 1];
+        // gameArrays.returnLevel(lastTimeSave);
+    },
+    continueMsg: function () {
+        let modal = document.getElementById("modal-bg");
+        modal.style.display = "none";
+        gameArrays.enterLevel(gameArrays.currentLevel);
+    },
+    returnMsg: function () {
+        let modal = document.getElementById("modal-bg");
+        modal.style.display = "none";
+        let timeSave = gameArrays.checkLevel(gameArrays.currentLevel);
+        let lastTimeSave = timeSave[timeSave.length - 1];
+        gameArrays.returnLevel(lastTimeSave);
+    },
+    tryAgainMsg: function () {
+        let modal = document.getElementById("modal-bg");
+        modal.style.display = "none";
+        // this.enterLevel(this.currentLevel);
+        startLevel(0);
     },
     doneMsg: function () {
         let modal = document.getElementById("modal-bg");
         modal.style.display = "none";
         // this.enterLevel(this.currentLevel);
-        startLevel(false, "success");
-    },
-    playAgainMsg: function () {
-        let modal = document.getElementById("modal-bg");
-        modal.style.display = "none";
-        // this.enterLevel(this.currentLevel);
-        startLevel(false);
+        startLevel(3);
     },
     displayMsg: function (msgStatus, msgType) {
         let modal = document.getElementById("modal-bg");
         let modalText = document.querySelector(".modal-text");
         let readyModal = document.getElementById("ready-modal");
+        let continueModal = document.getElementById("continue-modal");
+        let returnModal = document.getElementById("return-modal");
         let doneModal = document.getElementById("done-modal");
         let startBtn = document.querySelector(".startBtn");
         readyModal.addEventListener("click", this.readyMsg);
+        continueModal.addEventListener("click", this.continueMsg);
+        returnModal.addEventListener("click", this.returnMsg);
         doneModal.addEventListener("click", this.doneMsg);
 
-        if (typeof msgStatus === "ready") {
+        if (msgStatus === "ready") {
             modal.style.display = "none";
             // this.enterLevel(this.currentLevel);
-            startLevel(true);
+            // startLevel(0);
 
         } else if (msgStatus === "show") {
             modal.style.display = "block";
@@ -922,27 +941,38 @@ let gameArrays = {
                 modalText.innerText = `You have completed level: ${this.currentLevel}. ${this.savedHorde.length} bubbles will be teleported to next level.`;
                 doneModal.style.display = "block";
                 readyModal.style.display = "none";
+                continueModal.style.display = "none";
+                returnModal.style.display = "none";
 
             } else if (msgType === "begin") {
                 modalText.innerText = `Entering Level: ${this.currentLevel}. Ready?`;
                 readyModal.style.display = "block";
                 doneModal.style.display = "none";
-                gameArrays.enterLevel(gameArrays.currentLevel);
+                continueModal.style.display = "none";
+                returnModal.style.display = "none";
+
+            } else if (msgType === "continue") {
+                modalText.innerText = `Entering Next Level: ${this.currentLevel}. Ready?`;
+                readyModal.style.display = "none";
+                doneModal.style.display = "none";
+                continueModal.style.display = "block";
+                returnModal.style.display = "none";
 
             } else if (msgType === "return") {
                 modalText.innerText = `Time Warp! Returning to Level: ${level}.`;
-                readyModal.style.display = "block";
+                readyModal.style.display = "none";
                 doneModal.style.display = "none";
-                let timeSave = gameArrays.checkLevel(gameArrays.currentLevel);
-                let lastTimeSave = timeSave[timeSave.length - 1];
-                gameArrays.returnLevel(lastTimeSave);
+                continueModal.style.display = "none";
+                returnModal.style.display = "block";
 
             } else if ("play again") {
                 modalText.innerText = `Game over! Want to play again?`;
                 readyModal.style.display = "none";
                 doneModal.style.display = "none";
                 startBtn.style.display = "block";
-                startLevel(true);
+                continueModal.style.display = "none";
+                returnModal.style.display = "none";
+                // startLevel(0);
             } else {
                 console.log("error");
             };
@@ -1062,9 +1092,11 @@ function startGame() {
 
 let levelLoop;
 
-function startLevel(levelOver, gameStatus) {
+function startLevel(levelOver) {
+    // alert("level over!");
 
-    if (levelOver != false) {
+    if (levelOver === 0) {
+
 
         let myBlaster = document.getElementById("blaster");
         myBlaster.style.display = "block";
@@ -1084,13 +1116,9 @@ function startLevel(levelOver, gameStatus) {
         let hitBox = document.querySelector(".hit-box");
         hitBox.style.display = "block";
 
-
-        // crossHair.style.left = `${turretCoords.left + 25}px`;
-        // crossHair.style.top = `${turretCoords.top - 25}px`;
-
+        // call enterLevel(): creates/merges all horde arrays
         let count = 0,
-            // call enterLevel(): creates/merges all horde arrays
-            deployed = gameArrays.enterLevel();
+        deployed = gameArrays.enterLevel();
 
         console.log(deployed);
 
@@ -1144,29 +1172,31 @@ function startLevel(levelOver, gameStatus) {
                 };
             } else if (gameArrays.currentHordeArr.length <= 0 && gameArrays.gameStatus === "success") {
                 console.log("Congrats, you won!");
-                startLevel(true, gameArrays.gameStatus);
+                startLevel(1, gameArrays.gameStatus);
             } else {
                 console.log("Sorry, you lost!");
                 gameArrays.gameStatus = "failure";
                 gameArrays.lives--;
-                startLevel(true, "failure");
+                startLevel(1, "failure");
             };
         };
         levelLoop = setInterval(gameLoopTest, 150);
 
-    } else {
-        gameArrays.endLevel();
-
+    } else if (levelOver === 1) {
+        
         let gamescreen = document.getElementById("game-screen");
         gamescreen.innerHTML = "";
         clearInterval(levelLoop);
+        
+        gameArrays.endLevel();
+        
+    } else {
+
         if (gameArrays.gameStatus === "success") {
-            // gameArrays.currentLevel++;
-            
-            currentLevel++;
+            gameArrays.currentLevel++;
+            // currentLevel++;
             gameArrays.updateLevel(gameArrays.currentLevel);
-            gameArrays.displayMsg("show", "begin");
-            // gameArrays.startLevel(gameArrays.currentLevel);
+            gameArrays.displayMsg("show", "continue");
 
         } else if (gameArrays.lives != 0) {
             gameArrays.displayMsg("show", "return");
