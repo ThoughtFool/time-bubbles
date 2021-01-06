@@ -1,8 +1,8 @@
 class Bullet {
-    constructor(id, x, y, angle, speed, ammoString, height, width, ready) {
+    constructor(id, xPos, yPos, angle, speed, ammoString, height, width, ready) {
         this.id = id;
-        this.x = x;
-        this.y = y;
+        this.xPos = xPos;
+        this.yPos = yPos;
         this.angle = angle;
         this.speed = speed;
         this.ammoString = ammoString;
@@ -15,15 +15,196 @@ class Bullet {
     };
 
     tick() {
-        this.x += this.dx;
-        this.y += this.dy;
+        this.xPos += this.dx;
+        this.yPos += this.dy;
 
         let gamescreenCoords = gamescreen.getBoundingClientRect();
+        let myLaser = document.getElementById(this.id);
 
-        if (this.x + this.radius < 0.0 ||
-            this.x - this.radius > gamescreenCoords.right ||
-            this.y + this.radius < 0.0 ||
-            this.y - this.radius > gamescreenCoords.bottom) {
+        if (this.xPos + this.radius < 0.0 ||
+            this.xPos - this.radius > gamescreenCoords.right ||
+            this.yPos + this.radius < 0.0 ||
+            this.yPos - this.radius > gamescreenCoords.bottom) {
+
+            this.dx = 0.0;
+            this.dy = 0.0;
+
+            myLaser.parentNode.removeChild(myLaser);
+            return "explode";
+        } else {
+            let laserCoords = myLaser.getBoundingClientRect();
+            let arrayToCheck = gameArrays.currentHordeArr;
+            // let itemBoxArray = document.querySelectorAll(".item-box");
+            for (let i = 0; i < gameArrays.currentHordeArr.length; i++) {
+                let arrElem = document.getElementById(`${gameArrays.currentHordeArr[i].id}`);
+                let arrItem = arrElem.getBoundingClientRect();
+
+                if (arrItem.left < laserCoords.right &&
+                    arrItem.right > laserCoords.left &&
+                    arrItem.top < laserCoords.bottom &&
+                    arrItem.bottom > laserCoords.top) {
+                    // return arrayToCheck[i].id;
+                    removeElem(this.id);
+                    this.dx = 0.0;
+                    this.dy = 0.0;
+                    // TODO: remove from array too!
+
+                    gameArrays.updateHorde(i, "destroy");
+
+                    return "explode";
+                };
+                // else if (arrItem.left < laserCoords.right &&
+                //     arrItem.right > this.xPos &&
+                //     arrItem.top < laserCoords.bottom &&
+                //     arrItem.bottom > this.yPos) {
+                //     // return arrayToCheck[i].id;
+                //     return "explode";
+                // };
+            };
+        };
+        return " ";
+    };
+};
+
+class Bomb {
+    constructor(id, xPos, yPos, height, width, ammoString, ready) {
+        this.id = id;
+        this.xPos = xPos;
+        this.yPos = yPos;
+        this.ammoString = ammoString;
+        this.height = height;
+        this.width = width;
+        this.ready = ready;
+        this.radius = 5.0;
+    };
+
+    tick() {
+
+        // let myBomb = document.getElementById(this.id);
+        let hitBox = document.querySelector(".shockwave");
+        if (typeof hitBox != "null") {
+
+            // let hitBox = document.querySelector(".hit-box");
+            let hitBoxCoords = hitBox.getBoundingClientRect();
+            let arrayToCheck = gameArrays.currentHordeArr;
+
+            for (let i = 0; i < gameArrays.currentHordeArr.length; i++) {
+                let arrElem = document.getElementById(`${gameArrays.currentHordeArr[i].id}`);
+                let arrItem = arrElem.getBoundingClientRect();
+
+                if (arrItem.left < hitBoxCoords.right &&
+                    arrItem.right > hitBoxCoords.left &&
+                    arrItem.top < hitBoxCoords.bottom &&
+                    arrItem.bottom > hitBoxCoords.top) {
+
+                    // removeElem(this.id);
+
+                    gameArrays.updateHorde(i, "teleport");
+
+                    return "explode";
+                };
+            };
+        };
+
+        return " ";
+    };
+};
+
+function bubbleBuilder(id_, currentLevel, levelsLived, xPos, yPos, radius, dx, dy, id, e, mass, color, size) {
+    this.id_ = id_;
+    this.currentLevel = currentLevel;
+    this.levelsLived = levelsLived;
+    this.xPos = xPos;
+    this.yPos = yPos;
+    this.radius = radius;
+    this.dx = dx; // left or right
+    this.dy = dy; // up or down
+    this.id = id;
+    this.e = -e;
+    this.mass = mass;
+    this.color = color;
+    this.size = size;
+    this.drawn = false;
+    this.gravity = 9.81;
+    this.friction = .5;
+    this.area = (Math.PI * radius * radius) / 10000;
+    this.bubbleElem = "";
+    this.updatePos = function (elemIDTouched) {
+        let elemTouched = document.getElementById(elemIDTouched);
+        let elemCoords = elemTouched.getBoundingClientRect();
+
+
+
+        // this.xPos += this.dx; 
+        // this.yPos += this.dy;
+
+        // console.log(this.xPos);
+        // console.log(this.yPos);
+        // console.log("elemCoords");
+        // console.log(elemCoords);
+
+        if (this.xPos + this.dx < this.radius || this.xPos + this.dx > elemCoords.width - this.radius) {
+            this.dx = -this.dx;
+        };
+
+        if (this.yPos + this.dy < this.radius || this.yPos + this.dy > elemCoords.height - this.radius) {
+            this.dy = -this.dy;
+        };
+
+        // if (this.xPos + this.dx > elemCoords.width - this.radius || this.xPos + this.dx < this.radius) {
+        //     this.dx = -this.dx;
+        // };
+        // if (this.yPos + this.dy > elemCoords.height - this.radius || this.yPos + this.dy < this.radius) {
+        //     this.dy = -this.dy;
+        // };
+        // if (this.yPos + this.radius >= elemCoords.height) {
+        //     this.dy *= -1;
+        //     // this.yPos += this.dy;
+        // };
+        // coordChecker(this.id, weaponArray);
+
+        // velocity:
+        this.xPos += this.dx;
+        this.yPos += this.dy;
+
+    };
+    this.movePos = function () {
+        this.bubbleElem = document.getElementById(this.id);
+        if (typeof this.bubbleElem != "null") {
+            this.bubbleElem.style.left = `${this.xPos}px`;
+            this.bubbleElem.style.top = `${this.yPos}px`;
+        };
+    };
+    // check bubble collisions with laser array:
+    this.coordChecker = function (elemID, arrayToCheck) {
+        let elem = document.getElementById(elemID);
+        console.log("elemID");
+        console.log(elemID);
+        if (typeof elem != "null" && arrayToCheck.length > 0) {
+            let elemCoords = elem.getBoundingClientRect();
+            // let itemBoxArray = document.querySelectorAll(".item-box");
+            for (let i = 0; i < arrayToCheck.length; i++) {
+                // alert(arrayToCheck[i].id);
+                let arrElem = document.getElementById(`${arrayToCheck[i].id}`);
+                let arrItem = arrElem.getBoundingClientRect();
+
+                if (arrItem.left < elemCoords.right &&
+                    arrItem.right > elemCoords.left &&
+                    arrItem.top < elemCoords.bottom &&
+                    arrItem.bottom > elemCoords.top) {
+                    console.log(arrayToCheck[i].id);
+                    return "explode";
+                };
+            };
+        };
+    };
+    this.wallChecker = function (boundaryID) {
+        let boundaryElem = document.getElementById(boundaryID);
+        let boundaryCoords = boundaryElem.getBoundingClientRect();
+        if (this.xPos + this.radius < 0.0 ||
+            this.xPos - this.radius > boundaryCoords.right ||
+            this.yPos + this.radius < 0.0 ||
+            this.yPos - this.radius > boundaryCoords.bottom) {
 
             this.dx = 0.0;
             this.dy = 0.0;
@@ -31,42 +212,12 @@ class Bullet {
             let myLaser = document.getElementById(this.id);
             myLaser.parentNode.removeChild(myLaser);
             return false;
-        } else if (this.x + this.radius < 0.0) {
-
-            bubbleBlasted = coordChecker(laserID, bubbleArray);
-            if (typeof bubbleBlasted != "undefined") {
-
-                function removeElem(elemID) {
-                    let elem = document.getElementById(elemID);
-                    elem.parentNode.removeChild(elem);
-                };
-
-                removeElem(laserID);
-                exists = false;
-
-
-                this.dx = 0.0;
-                this.dy = 0.0;
-
-                let myLaser = document.getElementById(this.id);
-                myLaser.parentNode.removeChild(myLaser);
-                return false;
-            };
-            return true;
-        };
+        }
     };
 };
 
 function afterLoading() {
 
-    // let gamescreen = document.getElementById("game-screen");
-
-    // var img = $('.image');
-    // if (myTestBlaster.length > 0) {
-    // var offset = myTestBlaster.offset();
-    // let gamescreenCoords = gamescreen.getBoundingClientRect();
-
-    // function mouse(evt) {
     let myTestBlaster = document.getElementById("blaster");
     let myTestBlasterCoords = myTestBlaster.getBoundingClientRect();
 
@@ -83,93 +234,25 @@ function afterLoading() {
         dy: 0.0,
         angle: 0.0,
         radius: 17.5,
-        // radius: 141.5,
 
         tick: function (angle) {
             this.angle = angle;
             myTestBlaster.style.transform = `translate(${50}px, ${-50}px)`;
 
             // this.angle = Math.atan2(mouseY - this.y, mouseX - this.x);
+            // coordChecker(this.id, arrayToCheck)
         },
         update: function (mouseX, mouseY) {
             var dx = mouseX - this.x;
             var dy = mouseY - this.y;
             this.angle = Math.atan2(dy, dx);
         }
-        // bulletMoveMethod: function (projectile, index) {
-        //     let laserID = `laser-${index}`;
-
-        //     function loop() {
-
-        //         let myLaser = document.getElementById(laserID);
-        //         let myLaserCoords = myLaser.getBoundingClientRect();
-
-        //         let newPosX = myLaserCoords.left += projectile.dx;
-        //         let newPosY = myLaserCoords.top += projectile.dy;
-
-        //         myLaser.style.left = `${newPosX}px`;
-        //         myLaser.style.top = `${newPosY}px`;
-
-        //         // bullet.render();
-        //         // player.render();
-        //         requestAnimationFrame(loop);
-        //     };
-        // }
-    };
-
-    let bullet = {
-        id: "",
-        x: (myTestBlasterCoords.width * 0.5) | 0,
-        y: (myTestBlasterCoords.height * 0.5) | 0,
-        dx: 0.0,
-        dy: 0.0,
-        radius: 5.0,
-
-        tick: function () {
-            this.x += this.dx;
-            this.y += this.dy;
-
-            let gamescreenCoords = gamescreen.getBoundingClientRect();
-
-            if (this.x + this.radius < 0.0 ||
-                this.x - this.radius > gamescreenCoords.right ||
-                this.y + this.radius < 0.0 ||
-                this.y - this.radius > gamescreenCoords.bottom) {
-
-                this.dx = 0.0;
-                this.dy = 0.0;
-
-                let myLaser = document.getElementById(this.id);
-                myLaser.parentNode.removeChild(myLaser);
-                return false;
-            } else if (this.x + this.radius < 0.0) {
-
-                bubbleBlasted = coordChecker(laserID, bubbleArray);
-                if (typeof bubbleBlasted != "undefined") {
-
-                    function removeElem(elemID) {
-                        let elem = document.getElementById(elemID);
-                        elem.parentNode.removeChild(elem);
-                    };
-
-                    removeElem(laserID);
-                    exists = false;
-
-
-                    this.dx = 0.0;
-                    this.dy = 0.0;
-
-                    let myLaser = document.getElementById(this.id);
-                    myLaser.parentNode.removeChild(myLaser);
-                    return false;
-                };
-                return true;
-            };
-        },
     };
 
     function updateBeam(projectile) {
         // TODO: make loop for all projectiles or make a method of laser/bomb:
+        let ammoString = "laser";
+        gameArrays.fireWeapon(ammoString);
 
         let gamescreen = document.getElementById("game-screen");
         let laserBeam = document.createElement("div");
@@ -187,12 +270,16 @@ function afterLoading() {
         myLaser.style.left = `${projectile.xPos}px`;
         myLaser.style.top = `${projectile.yPos}px`;
 
-        let exists = "";
+        let exists = " ";
         let bubbleBlasted = "";
+
+        console.log("projectile");
+        console.log(projectile);
 
         function loop() {
 
             if (exists != "explode") {
+
                 let myLaser = document.getElementById(laserID);
                 let myLaserCoords = myLaser.getBoundingClientRect();
 
@@ -205,29 +292,17 @@ function afterLoading() {
                 // bullet.render();
                 // player.render();
 
-                exists = bullet.tick();
+                exists = projectile.tick();
 
-                bubbleBlasted = coordChecker(laserID, bubbleArray);
-                if (typeof bubbleBlasted != "undefined" && bubbleBlasted === "explode") {
-
-                    removeElem(laserID);
-                    exists = false;
-
-                    // removeElem(bubbleBlasted);
-                    // removeBubbleItem(bubbleIndex);
-
-                    // TODO: remove function: remove elem for laser and bubble, also splice from both arrays
-                } else {
-                    requestAnimationFrame(loop);
+                if (exists === "explode") {
+                    console.log();
+                    let indexToRemove = gameArrays.blaster.currentAmmo.laser.shots.findIndex(val => val.id === laserID);
+                    gameArrays.blaster.currentAmmo.laser.shots.splice(indexToRemove, 0);
                 };
-
-                // if (exists != false) {
-                // };
+                requestAnimationFrame(loop);
             };
         };
         loop();
-        // }
-        // testCounter++;
     };
 
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -238,9 +313,6 @@ function afterLoading() {
     function rotatePointer(e) {
         let myTestBlaster = document.getElementById("blaster");
         let myTestBlasterCoords = myTestBlaster.getBoundingClientRect();
-
-        // console.log("myTestBlasterCoords");
-        // console.log(myTestBlasterCoords);
 
         let pointerEvent = e;
         if (e.targetTouches && e.targetTouches[0]) {
@@ -270,23 +342,21 @@ function afterLoading() {
         // var mouse_y = e.pageY;
         // var radians = Math.atan2(mouse_x - center_x, mouse_y - center_y);
         // var degrees = (radians * (180 / Math.PI) * -1) + 90;
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         let crossHair = document.getElementById("cross-hair");
         let myTurret = document.querySelector(".turret");
         let wing = document.querySelector(".wing");
 
         myTestBlaster.style.transform = `rotate(${degrees}deg)`;
-        // crossHair.style.transform = `translateY(${25}px)`;
-        // crossHair.style.transform = `rotate(${degrees}deg)`;
         myTurret.style.transform = `rotate(${degrees}deg)`;
         wing.style.transform = `rotate(${degrees}deg)`;
-
     };
     gamescreen.addEventListener('mousemove', rotatePointer);
     gamescreen.addEventListener('touchmove', rotatePointer);
     gamescreen.addEventListener('touchstart', rotatePointer);
     gamescreen.addEventListener('mousedown', launcher);
-
-    let projectileCount = 0;
 
     function launcher(e) {
 
@@ -295,6 +365,10 @@ function afterLoading() {
             let ammoString = "laser";
 
             if (gameArrays.blaster.currentAmmo[ammoString].count.length >= 1) {
+
+                // removes from storage to ready status: 
+                let ammoStatus = gameArrays.shootBlaster(ammoString);
+                console.log(ammoStatus);
 
                 let myTestBlaster = document.getElementById("blaster");
                 let myTestBlasterCoords = myTestBlaster.getBoundingClientRect();
@@ -314,34 +388,19 @@ function afterLoading() {
                 x = x / vectorLength;
                 y = y / vectorLength;
 
-                let indexReady = gameArrays.blaster.currentAmmo[ammoString].count.findIndex(isReady);
+                let indexReady = gameArrays.blaster.currentAmmo[ammoString].shots.findIndex(isReady);
+                // let laserID = gameArrays.blaster.currentAmmo[ammoString].shots[indexReady].id;
 
-                // console.log("readyToDeploy");
-                // console.log(gameArrays.blaster.currentAmmo[ammoString].count[0].ready);
-                // console.log(gameArrays.blaster.currentAmmo[ammoString].count)
-                // console.log(readyToDeploy);
-
-                let laserID = gameArrays.blaster.currentAmmo[ammoString].count[indexReady].id;
-                // getArrayItemById(laserID, gameArrays.blaster.currentAmmo[ammoString].count);
-                gameArrays.blaster.currentAmmo[ammoString].count[indexReady].id = laserID;
-                gameArrays.blaster.currentAmmo[ammoString].count[indexReady].x = myTestBlasterCoords.x;
-                gameArrays.blaster.currentAmmo[ammoString].count[indexReady].y = myTestBlasterCoords.y;
+                // gameArrays.blaster.currentAmmo[ammoString].shots[indexReady].id = laserID;
+                gameArrays.blaster.currentAmmo[ammoString].shots[indexReady].ready = false;
+                gameArrays.blaster.currentAmmo[ammoString].shots[indexReady].xPos = myTestBlasterCoords.x;
+                gameArrays.blaster.currentAmmo[ammoString].shots[indexReady].yPos = myTestBlasterCoords.y;
 
                 // Get the bullet to travel towards the mouse pos with a new speed of 10.0 (you can change this)
-                gameArrays.blaster.currentAmmo[ammoString].count[indexReady].dx = x * 10.0;
-                gameArrays.blaster.currentAmmo[ammoString].count[indexReady].dy = y * 10.0;
+                gameArrays.blaster.currentAmmo[ammoString].shots[indexReady].dx = x * 10.0;
+                gameArrays.blaster.currentAmmo[ammoString].shots[indexReady].dy = y * 10.0;
 
-                // updateBeam({
-                //     xPos: bullet.x,
-                //     yPos: bullet.y,
-                //     dx: bullet.dx,
-                //     dy: bullet.dy,
-                //     id: bullet.id
-                // });
-                updateBeam(gameArrays.blaster.currentAmmo[ammoString].count[indexReady]);
-
-                gameArrays.shootBlaster(ammoString);
-                // projectileCount++;
+                updateBeam(gameArrays.blaster.currentAmmo[ammoString].shots[indexReady]);
 
             } else {
                 alert("You don't have any ammo!");
@@ -349,8 +408,6 @@ function afterLoading() {
         };
     };
 };
-
-// Arrays by level: ROYGBIV
 
 let levelData = [{
         hordeNum: 5,
@@ -416,6 +473,7 @@ let gameArrays = {
         },
     ],
     currentLevel: 0,
+    gameStatus: "success",
     savedHorde: [],
     currentHordeArr: [],
     levelHordeArr: [],
@@ -456,8 +514,6 @@ let gameArrays = {
             this.velY += Math.sin(radians) * this.speed;
         }
     },
-    // let newX = oldX + cos(radians) * distance;
-    // let newY = oldY + sin(radians) * distance;
     lives: 3,
     blaster: {
         id: "blaster",
@@ -475,7 +531,7 @@ let gameArrays = {
             }
         },
         deg: 0,
-        shots: [],
+        // shots: [],
         noseX: gamescreenCoords.width / 2 + 15,
         noseY: gamescreenCoords.height / 2,
         radius: 15,
@@ -550,30 +606,47 @@ let gameArrays = {
 
         this.moveBlaster(dir);
     },
-    shootBlaster: function (ammoString, projectileCount) {
+    shootBlaster: function (ammoString) {
         console.log("weapons system is armed");
 
         // testing ONLY:
         // let index = projectileCount;
         let index = 0;
-
+        let indexReady;
         if (this.blaster.currentAmmo[ammoString].count.length > 0) {
+            if (ammoString === "laser") {
 
-            let projectile = this.blaster.currentAmmo[ammoString].count[index];
-            this.blaster.currentAmmo[ammoString].shots.push(projectile);
+                let projectile = this.blaster.currentAmmo[ammoString].count[index];
+                this.blaster.currentAmmo[ammoString].shots.push(projectile);
+                console.log("shots.push");
+                console.log(this.blaster.currentAmmo[ammoString].shots);
+                this.blaster.currentAmmo[ammoString].count.splice(index, 1);
+                console.log("count.splice");
+                console.log(this.blaster.currentAmmo[ammoString].count);
 
-            // ********************* this.blaster.currentAmmo[ammoString].count.splice(index, 1); *********************
+            } else if (ammoString === "bomb") {
+                // updateBeam(this.blaster.currentAmmo[ammoString].shots[indexReady]);
 
-            console.log(ammoString);
+                let projectile = this.blaster.currentAmmo[ammoString].count[index];
+                this.blaster.currentAmmo[ammoString].shots.push(projectile);
+                console.log("shots.push");
 
-            this.fireWeapon(ammoString, 0);
+                indexReady = this.blaster.currentAmmo[ammoString].shots.findIndex(isReady);
+                this.blaster.currentAmmo[ammoString].shots[indexReady].ready = false;
+                this.blaster.currentAmmo[ammoString].count.splice(index, 1);
+                console.log("count.splice");
+            };
+
+            // this.fireWeapon(ammoString, 0);
+            return indexReady;
+            return "locked & loaded";
 
         } else {
             console.log("no weapons");
         };
 
     },
-    makeLaser: function (angle, ammoString) {
+    makeAmmo: function (angle, ammoString) {
         let xPos = this.blaster.noseX,
             yPos = this.blaster.noseY;
 
@@ -581,37 +654,24 @@ let gameArrays = {
             let laserID = `${ammoString}-${this.laserCount}`;
             let newLaser = new Bullet(laserID, xPos, yPos, angle, 25, ammoString, 4, 4, true);
             this.blaster.currentAmmo[ammoString].count.push(newLaser);
-            console.log(this.blaster.currentAmmo[ammoString].count[0].id);
-            // this.blaster.currentAmmo[ammoString].count.push(projectile = {
-            //     xPos: xPos,
-            //     yPos: yPos,
-            //     angle: angle,
-            //     height: 4,
-            //     width: 4,
-            //     speed: 25,
-            //     xVel: 0,
-            //     yVel: 0,
-            //     type: ammoString,
-            //     id: laserID
-            //     // updateBeam: function () { // TODO: make loop for all projectiles or make a method of laser/bomb:
-            // });
+
+            console.log("count.push");
+            console.log(this.blaster.currentAmmo[ammoString].count);
+
+            // TODO: make loop for all projectiles or make a method of laser/bomb:
             this.laserCount++;
 
         } else if (ammoString === "bomb") {
             let bombID = `${ammoString}-${this.bombCount}`;
-            this.blaster.currentAmmo[ammoString].count.push({
-                xPos: xPos,
-                yPos: yPos,
-                angle: angle,
-                height: 8,
-                width: 8,
-                speed: 5,
-                xVel: 0,
-                yVel: 0,
-                type: ammoString,
-                id: bombID
-                // updateBeam: function () {
-            });
+            let hitBox = document.querySelector(".hit-box");
+            let hitBoxCoords = hitBox.getBoundingClientRect();
+            let newBomb = new Bomb(bombID, hitBoxCoords.left, hitBoxCoords.top, hitBoxCoords.height, hitBoxCoords.width, ammoString, true);
+
+            this.blaster.currentAmmo[ammoString].count.push(newBomb);
+
+            console.log("count.push (bomb)");
+            console.log(this.blaster.currentAmmo[ammoString].count);
+
             this.bombCount++;
         };
         // this.blaster.currentAmmo[ammoString].count.push(newProjectile);
@@ -628,21 +688,40 @@ let gameArrays = {
     spawnHorde: function () {
         let hordeArr = [];
         for (let i = 0; i < this.levelData[this.currentLevel].hordeNum; i++) {
-            let monster = {
-                id: `horde-${this.currentLevel}-${i}`,
-                currentLevel: this.currentLevel,
-                levelsLived: []
-            };
-            hordeArr.push(monster);
+            let size = Math.random() * 30 + 15;
+            let left = Math.random() * 600 + 40;
+            let top = Math.random() * 500 + 40;
+            // let dx = Math.floor(Math.random() * 10) + 5;
+            // let dy = Math.floor(Math.random() * 10) + 5;
+            let dx = this.randomDirection(-25, 25);
+            let dy = this.randomDirection(-25, 25);
+            let color = "#" + Math.floor(Math.random() * 16777215).toString(16).slice(2, 8).toUpperCase();
+            let bubbleID = `bubble-${i}`;
+            let id_ = `horde-${this.currentLevel}-${i}`;
+            let currentLevel = this.currentLevel;
+            let levelsLived = [];
+
+            let monsterBubbleObj = new bubbleBuilder(id_, currentLevel, levelsLived, left, top, size / 2, dx, dy, bubbleID, 0.7, 10, color, size);
+            bubbleArray.push(monsterBubbleObj);
+            hordeArr.push(monsterBubbleObj);
         };
         return hordeArr;
     },
     updateHorde: function (indexToRemove, teleportOrDestroyString) {
+        // TODO: use removeItemFromArr() for actions below:
+        // also merge destroy and teleport to single if(teleport){savedHorde.push}
+
+        let elemID = this.currentHordeArr[indexToRemove].id;
+        let elem = document.getElementById(elemID);
+
         if (teleportOrDestroyString === "destroy") {
+
+            elem.parentNode.removeChild(elem);
             this.currentHordeArr.splice(indexToRemove, 1);
 
         } else if (teleportOrDestroyString === "teleport") {
             this.savedHorde.push(this.currentHordeArr[indexToRemove]);
+            elem.parentNode.removeChild(elem);
             this.currentHordeArr.splice(indexToRemove, 1);
 
         } else {
@@ -757,17 +836,18 @@ let gameArrays = {
             y: 0
         }
     },
-    fireWeapon: function (actionString, indexOfBubble) {
+    // TODO: merge laser/bomb:
+    fireWeapon: function (actionString) {
         if (actionString == "laser" && this.blaster.currentAmmo[actionString].count.length > 0) {
             // TODO: move updateHorde to collison detection:
-            this.updateHorde(indexOfBubble, "destroy");
+            // this.updateHorde(indexOfBubble, "destroy");
 
             this.updateAmmo("remove", actionString);
 
         } else if (actionString == "bomb" && this.blaster.currentAmmo[actionString].count.length > 0) {
             // TODO: move updateHorde to collison detection && edit updateHorde string some you can REMOVE "else if" (redundant)
             // "bomb" == "teleport" && "laser" == "destroy"
-            this.updateHorde(indexOfBubble, "teleport");
+            // this.updateHorde(indexOfBubble, "teleport");
 
             this.updateAmmo("remove", actionString);
 
@@ -778,11 +858,13 @@ let gameArrays = {
     updateAmmo: function (actionString, ammoString) {
 
         if (actionString === "remove") {
-            this.blaster.currentAmmo[ammoString].count.pop();
+            let notReadyIndex = this.blaster.currentAmmo[ammoString].shots.findIndex(isLaunched);
+            this.blaster.currentAmmo[ammoString].shots.splice(notReadyIndex, 0);
+            // this.blaster.currentAmmo[ammoString].count.pop();
 
         } else if (actionString === "add" && this.blaster.currentAmmo[ammoString].count.length < this.blaster.currentAmmo[ammoString].limit) {
 
-            this.makeLaser(this.blaster.angle, ammoString);
+            this.makeAmmo(this.blaster.angle, ammoString);
             // this.blaster.currentAmmo[ammoString].count.push(ammoString);
 
         } else {
@@ -795,6 +877,11 @@ let gameArrays = {
         let xPosStart = this.blaster.xPos;
         let yPosStart = this.blaster.yPos;
         let angleFired = this.blaster.angle;
+    },
+    randomDirection: function (min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     },
     readyMsg: function () {
         let modal = document.getElementById("modal-bg");
@@ -840,12 +927,22 @@ let gameArrays = {
                 modalText.innerText = `Entering Level: ${this.currentLevel}. Ready?`;
                 readyModal.style.display = "block";
                 doneModal.style.display = "none";
+                gameArrays.enterLevel(gameArrays.currentLevel);
+
+            } else if (msgType === "return") {
+                modalText.innerText = `Time Warp! Returning to Level: ${level}.`;
+                readyModal.style.display = "block";
+                doneModal.style.display = "none";
+                let timeSave = gameArrays.checkLevel(gameArrays.currentLevel);
+                let lastTimeSave = timeSave[timeSave.length - 1];
+                gameArrays.returnLevel(lastTimeSave);
 
             } else if ("play again") {
                 modalText.innerText = `Game over! Want to play again?`;
                 readyModal.style.display = "none";
                 doneModal.style.display = "none";
                 startBtn.style.display = "block";
+                startLevel(true);
             } else {
                 console.log("error");
             };
@@ -897,7 +994,6 @@ let gameArrays = {
 // gameArrays.updateHorde(5, "teleport");
 // gameArrays.endLevel();
 
-//////////////////////// Generate Bubbles /////////////////////////////////
 let startBtn = document.querySelector(".startBtn");
 startBtn.addEventListener("click", startGame);
 
@@ -921,17 +1017,24 @@ async function naviCtrl(value) {
 
         if (gameArrays.blaster.currentAmmo[ammoString].count.length > 0) {
 
-            gameArrays.shootBlaster(ammoString);
+            let indexReady = gameArrays.shootBlaster(ammoString);
             let hitBox = document.querySelector(".hit-box");
+            let exists = " ";
 
             hitBox.classList.add("shockwave");
+
+            function bombLoop() {
+                if (exists != "explode") {
+                    gameArrays.blaster.currentAmmo[ammoString].shots[indexReady].tick();
+                };
+                requestAnimationFrame(bombLoop);
+            };
             setTimeout(() => {
                 hitBox.classList.remove("shockwave");
+                exists = "explode";
+                gameArrays.fireWeapon(ammoString);
             }, 1000);
-
-            // let ammoString = "bomb";
-            // gameArrays.shootBlaster(ammoString);
-
+            bombLoop();
         } else {
             alert("You don't have any ammo!");
         };
@@ -971,7 +1074,6 @@ function startLevel(levelOver, gameStatus) {
 
         let turret = document.querySelector(".turret");
         turret.style.display = "block";
-        // let turretCoords = myBlaster.getBoundingClientRect();
 
         let crossHair = document.querySelector("#cross-hair");
         crossHair.style.display = "block";
@@ -987,381 +1089,88 @@ function startLevel(levelOver, gameStatus) {
         // crossHair.style.top = `${turretCoords.top - 25}px`;
 
         let count = 0,
+            // call enterLevel(): creates/merges all horde arrays
             deployed = gameArrays.enterLevel();
+
         console.log(deployed);
 
-        // TODO: add bombs/lasers to currentAmmo object based on level selected and saved ammo from previous levels
-        // TODO: add ammo counts based on relived/relaunched levels
-
-        let gameLoop = setInterval(bubbleBlower, 1000);
-
-        function randomDirection(min, max) {
-            min = Math.ceil(min);
-            max = Math.floor(max);
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        };
+        //////////////////////// Generate Bubbles /////////////////////////////////
 
         function bubbleBlower() {
 
-            if (count < deployed) {
-
-                let size = Math.random() * 30 + 15;
-                let left = Math.random() * 600 + 40;
-                let top = Math.random() * 500 + 40;
-                // let dx = Math.floor(Math.random() * 10) + 5;
-                // let dy = Math.floor(Math.random() * 10) + 5;
-                let dx = randomDirection(-25, 25);
-                let dy = randomDirection(-25, 25);
-                let color = "#" + Math.floor(Math.random() * 16777215).toString(16).slice(2, 8).toUpperCase();
-
-                console.log("color");
-                console.log(color);
+            if (count < gameArrays.currentHordeArr.length) {
 
                 let gamescreen = document.querySelector("#game-screen");
                 let bubble = document.createElement("div");
-                let bubbleID = `bubble-${count}`;
+                let bubbleID = gameArrays.currentHordeArr[count].id;
                 bubble.id = bubbleID;
                 bubble.classList.add("enemy", "bubble");
 
                 gamescreen.append(bubble);
 
                 let newBubble = document.getElementById(bubbleID);
-                newBubble.style.height = `${size}px`;
-                newBubble.style.width = `${size}px`;
-                newBubble.style.left = `${left}px`;
-                newBubble.style.top = `${top}px`;
-                newBubble.style.backgroundColor = color;
-
-                // (xPos, yPos, radius, dx, dy, id)
-                let bubbleObject = new bubbleBuilder(left, top, size / 2, dx, dy, bubbleID, 0.7, 10);
-                bubbleArray.push(bubbleObject);
-
-                console.log("bubbleObject");
-                console.log(bubbleObject);
+                newBubble.style.height = `${gameArrays.currentHordeArr[count].size}px`;
+                newBubble.style.width = `${gameArrays.currentHordeArr[count].size}px`;
+                newBubble.style.left = `${gameArrays.currentHordeArr[count].xPos}px`;
+                newBubble.style.top = `${gameArrays.currentHordeArr[count].yPos}px`;
+                newBubble.style.backgroundColor = gameArrays.currentHordeArr[count].color;
+                gameArrays.currentHordeArr[count].drawn = true;
 
                 count++
 
             } else {
                 clearInterval(gameLoop);
-                // alert("Done!");
             };
         };
-        // };
+        let gameLoop = setInterval(bubbleBlower, 1000);
 
-        // gameArrays.updateLevel(1);
-        // gameArrays.levelHordeArr = gameArrays.spawnHorde();
-        // console.log(gameArrays.levelHordeArr);
+        //////////////////////////////////////////////////////////////
 
-        // Create level horde and assign data in gameArrays:
-        // let hordeArr = spawnHorde(levelData[1].hordeNum, levelData[1].level);
-        // gameArrays.levelHordeArr = hordeArr;
-        // console.log(hordeArr);
-
-        // gameArrays.teleportedHordeArr = gameArrays.savedHorde;
-        // Combine level array with teleported array and assign to the current array:
-        // gameArrays.currentHordeArr = gameArrays.combineHordes(gameArrays.levelHordeArr, gameArrays.teleportedHordeArr);
-
-        // function spawnHorde(hordeNum, level) {
-        // // function spawnHorde(hordeNum, level, levelHordeArr, teleHordeArr, ammoArr) {
-        //     let hordeArr = [];
-        //     for (let i = 0; i < hordeNum; i++) {
-        //         let monster = {
-        //             id: `horde-${level}-${i}`,
-        //             level, level,
-        //             levelsLived:[
-        //                 level
-        //             ]
-        //         };
-        //         hordeArr.push(monster);
-        //     };
-        //     return hordeArr;
-        // };
-
-        // function updateHorde(currentHordeArr, indexToRemove, teleportOrDestroyString) {
-        // function updateHorde(indexToRemove, teleportOrDestroyString) {
-        //     if("destroy") {
-
-        //     } else if ("teleport") {
-
-        //     } else {
-        //         console.log("Action is undefined!"); 
-        //     };
-        // };
-
-        // function destroy(hordeArr, indexToDestroy) {
-
-        // };
-
-        // function teleport(currentHordeArr, indexToTeleport) {
-        //     let teleportedHorde = [];
-
-        //     return teleportedHorde;
-        // };
-
-        // function combineHordes(levelHordeArr, teleportedHordeArr) {
-        //     let combinedArr = levelHordeArr.concat(teleportedHordeArr);
-        //     return combinedArr;
-        // };
-        // levelHordeArr = newHorde;
-
-        function bubbleBuilder(xPos, yPos, radius, dx, dy, id, e, mass) {
-            this.xPos = xPos;
-            this.yPos = yPos;
-            this.radius = radius;
-            this.dx = dx; // left or right
-            this.dy = dy; // up or down
-            this.id = id;
-            this.e = -e;
-            this.mass = mass;
-            this.gravity = 9.81;
-            this.friction = .5;
-            this.area = (Math.PI * radius * radius) / 10000;
-            this.bubbleElem = "";
-            this.updatePos = function (elemIDTouched) {
-                let elemTouched = document.getElementById(elemIDTouched);
-                let elemCoords = elemTouched.getBoundingClientRect();
-
-
-
-                // this.xPos += this.dx; 
-                // this.yPos += this.dy;
-
-                // console.log(this.xPos);
-                // console.log(this.yPos);
-                // console.log("elemCoords");
-                // console.log(elemCoords);
-
-                if (this.xPos + this.dx < this.radius || this.xPos + this.dx > elemCoords.width - this.radius) {
-                    this.dx = -this.dx;
-                };
-
-                if (this.yPos + this.dy < this.radius || this.yPos + this.dy > elemCoords.height - this.radius) {
-                    this.dy = -this.dy;
-                };
-
-                // if (this.xPos + this.dx > elemCoords.width - this.radius || this.xPos + this.dx < this.radius) {
-                //     this.dx = -this.dx;
-                // };
-                // if (this.yPos + this.dy > elemCoords.height - this.radius || this.yPos + this.dy < this.radius) {
-                //     this.dy = -this.dy;
-                // };
-                // if (this.yPos + this.radius >= elemCoords.height) {
-                //     this.dy *= -1;
-                //     // this.yPos += this.dy;
-                // };
-                // coordChecker(this.id, weaponArray);
-
-                // velocity:
-                this.xPos += this.dx;
-                this.yPos += this.dy;
-            };
-            this.movePos = function () {
-                this.bubbleElem = document.getElementById(this.id);
-                if (typeof this.bubbleElem != "null") {
-                    this.bubbleElem.style.left = `${this.xPos}px`;
-                    this.bubbleElem.style.top = `${this.yPos}px`;
-                };
-            };
-            // check bubble collisions with laser array:
-            this.coordChecker = function (elemID, arrayToCheck) {
-                let elem = document.getElementById(elemID);
-                console.log("elemID");
-                console.log(elemID);
-                if (typeof elem != "null" && arrayToCheck.length > 0) {
-                    let elemCoords = elem.getBoundingClientRect();
-                    // let itemBoxArray = document.querySelectorAll(".item-box");
-                    for (let i = 0; i < arrayToCheck.length; i++) {
-                        // alert(arrayToCheck[i].id);
-                        let arrElem = document.getElementById(`${arrayToCheck[i].id}`);
-                        let arrItem = arrElem.getBoundingClientRect();
-
-                        if (arrItem.left < elemCoords.right &&
-                            arrItem.right > elemCoords.left &&
-                            arrItem.top < elemCoords.bottom &&
-                            arrItem.bottom > elemCoords.top) {
-                            console.log(arrayToCheck[i].id);
-                            return "explode";
-                        };
-                    };
-                };
-            };
-            this.coordChecker2 = function () {
-                this.bubbleElem = document.getElementById(this.id);
-                // updateCoords method
-                // let bubbleCoords = this.bubbleElem.getBoundingClientRect();
-                // updateElemArray method
-                let otherBubblesArr = document.querySelectorAll(".bubble");
-                // loop through elemArray and getCoords
-                for (let i = 0; i < otherBubblesArr.length; i++) {
-                    // compare elemCoords and elemArray[index].coords
-                    if (this.id != otherBubblesArr[i].id) {
-
-                        // let bubbleArrElem = otherBubblesArr[i].getBoundingClientRect();
-
-
-
-                        // if (this.xPos + this.radius + (bubbleArrElem.width / 2) > bubbleArrElem.left &&
-                        //     this.xPos < bubbleArrElem.left + this.radius + (bubbleArrElem.width / 2) &&
-                        //     this.yPos + this.radius + (bubbleArrElem.height / 2) > bubbleArrElem.top &&
-                        //     this.yPos < bubbleArrElem.top + this.radius + (bubbleArrElem.height / 2)) {
-
-                        // //         //pythagoras 
-                        // //     var distX = this.xPos - bubbleArrElem.left;
-                        // //     var distY = this.yPos - bubbleArrElem.top;
-                        // //     var d = Math.sqrt((distX) * (distX) + (distY) * (distY));
-
-                        // //     //checking circle vs circle collision 
-                        // //     if (d < this.radius + (bubbleArrElem.width / 2)) {
-                        // //         var nx = (bubbleArrElem.left - this.xPos) / d;
-                        // //         var ny = (bubbleArrElem.top - this.yPos) / d;
-                        // //         var p = 2 * (this.dx * nx + this.dy * ny - b2.velocity.x * nx - b2.velocity.y * ny) / (b1.mass + b2.mass);
-
-                        // //         // calulating the point of collision 
-                        // //         var colPointX = ((this.xPos * (bubbleArrElem.width / 2)) + (bubbleArrElem.left * this.radius)) / (this.radius + (bubbleArrElem.width / 2));
-                        // //         var colPointY = ((this.yPos * (bubbleArrElem.width / 2)) + (bubbleArrElem.top * this.radius)) / (this.radius + (bubbleArrElem.width / 2));
-
-                        // //         //stopping overlap 
-                        // //         this.xPos = colPointX + this.radius * (this.xPos - bubbleArrElem.left) / d;
-                        // //         this.yPos = colPointY + this.radius * (this.yPos - bubbleArrElem.top) / d;
-                        // //         bubbleArrElem.left = colPointX + (bubbleArrElem.width / 2) * (bubbleArrElem.left - this.xPos) / d;
-                        // //         bubbleArrElem.top = colPointY + (bubbleArrElem.width / 2) * (bubbleArrElem.top - this.yPos) / d;
-
-                        // //         //updating velocity to reflect collision 
-                        // //         this.dx -= p * this.mass * nx;
-                        // //         this.dy -= p * this.mass * ny;
-                        // //         // b2.velocity.x += p * b2.mass * nx;
-                        // //         // b2.velocity.y += p * b2.mass * ny;
-                        // //     };
-                        // // };
-
-
-
-                        // // if (bubbleArrElem.left < bubbleCoords.right + this.radius + (bubbleArrElem.width / 2) &&
-                        if (bubbleArrElem.left < bubbleCoords.right &&
-                            bubbleArrElem.right > bubbleCoords.left &&
-                            bubbleArrElem.top < bubbleCoords.bottom &&
-                            bubbleArrElem.bottom > bubbleCoords.top) {
-                            this.dx *= -1;
-                            this.dy *= -1;
-                            return otherBubblesArr[i].id;
-                        };
-
-                        // if ((this.dx == 1)) {
-                        //     if ((bubbleCoords.right == bubbleArrElem.left)) {
-                        //         if ((bubbleCoords.top <= bubbleArrElem.top) && (bubbleCoords.bottom >= bubbleArrElem.top) ||
-                        //             ((bubbleCoords.bottom >= bubbleArrElem.bottom) && (bubbleCoords.top <= bubbleArrElem.bottom))) {
-                        //             this.dx = -this.dx;
-                        //         };
-                        //     };
-                        // } else if ((this.dx == -1)) {
-                        //     if ((bubbleCoords.left == bubbleArrElem.right)) {
-                        //         if ((bubbleCoords.top <= bubbleArrElem.top) && (bubbleCoords.bottom >= bubbleArrElem.top) ||
-                        //             ((bubbleCoords.bottom >= bubbleArrElem.bottom) && (bubbleCoords.top <= bubbleArrElem.bottom))) {
-                        //             this.dx = -this.dx;
-                        //         };
-                        //     };
-                        // };
-
-                        // if ((this.dy == 1)) {
-                        //     if ((bubbleCoords.bottom == bubbleArrElem.top)) {
-                        //         if ((bubbleCoords.left <= bubbleArrElem.left) && (bubbleCoords.right >= bubbleArrElem.left) ||
-                        //             ((bubbleCoords.right >= bubbleArrElem.right) && (bubbleCoords.left <= bubbleArrElem.right))) {
-                        //             this.dy = -this.dy;
-                        //         };
-                        //     };
-                        // } else if ((this.dy == -1)) {
-                        //     if ((bubbleCoords.top == bubbleArrElem.bottom)) {
-                        //         if ((bubbleCoords.left <= bubbleArrElem.left) && (bubbleCoords.right >= bubbleArrElem.left) ||
-                        //             ((bubbleCoords.right >= bubbleArrElem.right) && (bubbleCoords.left <= bubbleArrElem.right))) {
-                        //             this.dy = -this.dy;
-                        //         };
-                        //     };
-                        // };
-
-                        ///////////////////////////////////////////////////////////////////////
-
-                        // if ((Math.abs(this.xPos - bubbleArrElem.left) < (this.radius + (bubbleArrElem.width / 2))) && (Math.abs(this.yPos - bubbleArrElem.top) < (this.radius + (bubbleArrElem.width / 2)))) {
-                        //     //reverse ball one
-                        //     this.dx *= -1;
-                        //     this.dy *= -1;
-
-                        //     let ballObj = bubbleArray.find(bubble => bubble.id === otherBubblesArr[i].id);
-                        //     console.log("ballObj");
-                        //     console.log(ballObj);
-
-                        //     //reverse ball two
-                        //     ballObj.dx *= -1;
-                        //     ballObj.dy *= -1;
-
-                        //     ballObj.movePos();
-
-                        //     // let reboundBall = document.getElementById(otherBubblesArr[i].id);
-                        //     // bubbleArray.findOne
-                        //     // reboundBall.style.left = `${this.xPos}px`;
-                        //     // reboundBall.style.top = `${this.yPos}px`;
-                        // };
-                    };
-                };
-                this.movePos();
-                // this.bubbleElem = document.getElementById(this.id);
-                // this.bubbleElem.style.left = `${this.xPos}px`;
-                // this.bubbleElem.style.top = `${this.yPos}px`;
-            };
-            this.wallChecker = function (boundaryID) {
-                let boundaryElem = document.getElementById(boundaryID);
-                let boundaryCoords = boundaryElem.getBoundingClientRect();
-                if (this.x + this.radius < 0.0 ||
-                    this.x - this.radius > boundaryCoords.right ||
-                    this.y + this.radius < 0.0 ||
-                    this.y - this.radius > boundaryCoords.bottom) {
-
-                    this.dx = 0.0;
-                    this.dy = 0.0;
-
-                    let myLaser = document.getElementById(this.id);
-                    myLaser.parentNode.removeChild(myLaser);
-                    return false;
-                }
-            };
-        };
-
-        // let bubbleObject = new bubbleBuilder(10, 10, 5, 2, -2, "bubble-0");
-        // console.log(bubbleObject);
+        // TODO: add bombs/lasers to currentAmmo object based on level selected and saved ammo from previous levels
+        // TODO: add ammo counts based on relived/relaunched levels
 
         async function gameLoopTest() { // draw() 
-            // alert("hi");
-            // draw the dom elems:
-            // let gamescreen = document.getElementById("game-screen");
-            // let gamescreenCoords = gamescreen.getBoundingClientRect();
-
-            // let xPos = gamescreenCoords.width / 2;
-            // let yPos = gamescreenCoords.height - 30;
 
             // TODO: check if bubbles are all destroyed or lives used
-            // if (bubbleArray.length > 0) {
+            if (gameArrays.currentHordeArr.length != 0 && gameArrays.gameStatus !== "failure") {
 
-            for (let i = 0; i < bubbleArray.length; i++) {
-                // console.log("bubbleArray[i].updatePos('game-screen')");
-                await bubbleArray[i].updatePos("game-screen");
-                // await bubbleArray[i].coordChecker(bubbleArray[i].id, gameArrays.blaster.currentAmmo.laser.count);
-                await bubbleArray[i].movePos();
+                for (let i = 0; i < gameArrays.currentHordeArr.length; i++) {
+                    if (gameArrays.currentHordeArr[i].drawn === true) {
+
+                        await gameArrays.currentHordeArr[i].updatePos("game-screen");
+                        // await gameArrays.currentHordeArr[i].coordChecker(gameArrays.currentHordeArr[i].id, gameArrays.blaster.currentAmmo.laser.count);
+                        await gameArrays.currentHordeArr[i].movePos();
+                    };
+                };
+            } else if (gameArrays.currentHordeArr.length <= 0 && gameArrays.gameStatus === "success") {
+                console.log("Congrats, you won!");
+                startLevel(true, gameArrays.gameStatus);
+            } else {
+                console.log("Sorry, you lost!");
+                gameArrays.gameStatus = "failure";
+                gameArrays.lives--;
+                startLevel(true, "failure");
             };
-
-            // gameArrays.updateBlaster();
-            // cartesian coors:
         };
         levelLoop = setInterval(gameLoopTest, 150);
+
     } else {
+        gameArrays.endLevel();
 
         let gamescreen = document.getElementById("game-screen");
         gamescreen.innerHTML = "";
         clearInterval(levelLoop);
-        if (gameStatus === "success") {
+        if (gameArrays.gameStatus === "success") {
             // gameArrays.currentLevel++;
+            
             currentLevel++;
-            gameArrays.updateLevel(currentLevel);
+            gameArrays.updateLevel(gameArrays.currentLevel);
             gameArrays.displayMsg("show", "begin");
+            // gameArrays.startLevel(gameArrays.currentLevel);
 
+        } else if (gameArrays.lives != 0) {
+            gameArrays.displayMsg("show", "return");
+            
         } else {
             currentLevel = 0;
             gameArrays.updateLevel(currentLevel);
@@ -1419,11 +1228,15 @@ function isReady1(bool, arrayToSearch) {
         console.log("element");
         console.log(element);
         return element.ready = bool;
-    });    
+    });
 };
 
 function isReady(element) {
     return element.ready == true;
+};
+
+function isLaunched(element) {
+    return element.ready == false;
 };
 
 
