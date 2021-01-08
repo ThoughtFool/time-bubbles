@@ -81,31 +81,55 @@ class Bomb {
     tick() {
 
         // let myBomb = document.getElementById(this.id);
-        let hitBox = document.querySelector(".shockwave");
-        if (typeof hitBox != "null") {
+        let shockwave = document.querySelector(".shockwave");
+        let hitBox = document.querySelector(".hit-box");
+        let result;
+        let pathway;
+        let coords;
 
-            // let hitBox = document.querySelector(".hit-box");
-            let hitBoxCoords = hitBox.getBoundingClientRect();
-            let arrayToCheck = gameArrays.currentHordeArr;
-
-            for (let i = 0; i < gameArrays.currentHordeArr.length; i++) {
-                let arrElem = document.getElementById(`${gameArrays.currentHordeArr[i].id}`);
-                let arrItem = arrElem.getBoundingClientRect();
-
-                if (arrItem.left < hitBoxCoords.right &&
-                    arrItem.right > hitBoxCoords.left &&
-                    arrItem.top < hitBoxCoords.bottom &&
-                    arrItem.bottom > hitBoxCoords.top) {
-
-                    // removeElem(this.id);
-
-                    gameArrays.updateHorde(i, "teleport");
-
-                    return "explode";
-                };
-            };
+        if (typeof (shockwave) != 'undefined' && shockwave != null) {
+            coords = shockwave.getBoundingClientRect();
+            pathway = "shockwave";
+            result = "explode";
+        } else {
+            coords = hitBox.getBoundingClientRect();
+            pathway = "hitbox";
+            result = "explode";
         };
 
+        // let hitBox = document.querySelector(".hit-box");
+        // let hitBoxCoords = hitBox.getBoundingClientRect();
+        let arrayToCheck = gameArrays.currentHordeArr;
+
+        for (let i = 0; i < gameArrays.currentHordeArr.length; i++) {
+            let arrElem = document.getElementById(`${gameArrays.currentHordeArr[i].id}`);
+            let arrItem = arrElem.getBoundingClientRect();
+
+            if (arrItem.left < coords.right &&
+                arrItem.right > coords.left &&
+                arrItem.top < coords.bottom &&
+                arrItem.bottom > coords.top) {
+
+                // removeElem(this.id):
+                // if (pathway === "shockwave") { // add teleports if(bomb):
+                    gameArrays.updateHorde(i, "teleport");
+
+                // };
+                // else { // add hits:
+                //     gameArrays.health -= 20;
+                //     console.log(gameArrays.currentHordeArr[i].id);
+                //     gameArrays.currentHordeArr[i].dx = -this.dx;
+                //     gameArrays.currentHordeArr[i].dy = -this.dy;
+
+                //     alert(`Careful there! You health is now: ${gameArrays.health}.`);
+
+                //     // setTimeout(() => {
+
+                //     // }, 2000);
+                // };
+                return result;
+            };
+        };
         return " ";
     };
 };
@@ -129,48 +153,55 @@ function bubbleBuilder(id_, currentLevel, levelsLived, xPos, yPos, radius, dx, d
     this.friction = .5;
     this.area = (Math.PI * radius * radius) / 10000;
     this.bubbleElem = "";
-    this.updatePos = function (elemIDTouched) {
+    this.updatePos = function (elemIDTouched, elemIDTouched2) {
         let elemTouched = document.getElementById(elemIDTouched);
         let elemCoords = elemTouched.getBoundingClientRect();
 
+        let elemTouched2 = document.getElementById(elemIDTouched2);
+        let elemCoords2 = elemTouched2.getBoundingClientRect();
 
+        let bubbleElem = document.getElementById(this.id);
 
-        // this.xPos += this.dx; 
-        // this.yPos += this.dy;
+            if (this.xPos + this.dx < this.radius || this.xPos + this.dx > elemCoords.width - this.radius) {
+                this.dx = -this.dx;
+            };
 
-        // console.log(this.xPos);
-        // console.log(this.yPos);
-        // console.log("elemCoords");
-        // console.log(elemCoords);
+            if (this.yPos + this.dy < this.radius || this.yPos + this.dy > elemCoords.height - this.radius) {
+                this.dy = -this.dy;
+            };
 
-        if (this.xPos + this.dx < this.radius || this.xPos + this.dx > elemCoords.width - this.radius) {
-            this.dx = -this.dx;
-        };
+            if (this.xPos < elemCoords2.right - this.radius &&
+                this.xPos + this.size > elemCoords2.left &&
+                this.yPos < elemCoords2.bottom - this.radius &&
+                this.yPos + this.size > elemCoords2.top) {
 
-        if (this.yPos + this.dy < this.radius || this.yPos + this.dy > elemCoords.height - this.radius) {
-            this.dy = -this.dy;
-        };
+                gameArrays.health -= 10;
+                updateStats();
 
-        // if (this.xPos + this.dx > elemCoords.width - this.radius || this.xPos + this.dx < this.radius) {
-        //     this.dx = -this.dx;
-        // };
-        // if (this.yPos + this.dy > elemCoords.height - this.radius || this.yPos + this.dy < this.radius) {
-        //     this.dy = -this.dy;
-        // };
-        // if (this.yPos + this.radius >= elemCoords.height) {
-        //     this.dy *= -1;
-        //     // this.yPos += this.dy;
-        // };
-        // coordChecker(this.id, weaponArray);
+                this.dx = -this.dx;
+                this.dy = -this.dy;
 
-        // velocity:
-        this.xPos += this.dx;
-        this.yPos += this.dy;
+                let forceField = document.querySelector(".force-field");
 
+                forceField.classList.add("collision-detected");
+                bubbleElem.classList.add("collision-detected");
+
+                // alert(`Careful there! You health is now: ${gameArrays.health}.`);
+
+                setTimeout(() => {
+                    forceField.classList.remove("collision-detected");
+                    bubbleElem.classList.remove("collision-detected");
+                }, 1000);
+            };
+
+            this.xPos += this.dx;
+            this.yPos += this.dy;
+            
+        this.movePos();
     };
     this.movePos = function () {
         this.bubbleElem = document.getElementById(this.id);
-        if (typeof this.bubbleElem != "null") {
+        if (typeof (this.bubbleElem) != 'undefined' && this.bubbleElem != null) {
             this.bubbleElem.style.left = `${this.xPos}px`;
             this.bubbleElem.style.top = `${this.yPos}px`;
         };
@@ -180,11 +211,11 @@ function bubbleBuilder(id_, currentLevel, levelsLived, xPos, yPos, radius, dx, d
         let elem = document.getElementById(elemID);
         console.log("elemID");
         console.log(elemID);
-        if (typeof elem != "null" && arrayToCheck.length > 0) {
+        if (typeof (elem) != 'undefined' && elem != null && arrayToCheck.length > 0) {
             let elemCoords = elem.getBoundingClientRect();
             // let itemBoxArray = document.querySelectorAll(".item-box");
             for (let i = 0; i < arrayToCheck.length; i++) {
-                // alert(arrayToCheck[i].id);
+
                 let arrElem = document.getElementById(`${arrayToCheck[i].id}`);
                 let arrItem = arrElem.getBoundingClientRect();
 
@@ -215,6 +246,8 @@ function bubbleBuilder(id_, currentLevel, levelsLived, xPos, yPos, radius, dx, d
         }
     };
 };
+
+let rotatePointer;
 
 function afterLoading() {
 
@@ -472,6 +505,8 @@ let gameArrays = {
             level: 5
         },
     ],
+    health: 100,
+    enemyCount: 0,
     currentLevel: 0,
     gameStatus: "success",
     savedHorde: [],
@@ -636,6 +671,7 @@ let gameArrays = {
                 this.blaster.currentAmmo[ammoString].count.splice(index, 1);
                 console.log("count.splice");
             };
+            updateStats();
 
             // this.fireWeapon(ammoString, 0);
             return indexReady;
@@ -689,8 +725,8 @@ let gameArrays = {
     spawnHorde: function () {
         let hordeArr = [];
         let ceilCount = this.levelData[this.currentLevel].hordeNum + this.globalCount;
-        // alert(ceilCount);
-        for (let i = this.globalCount; i < ceilCount; i++) {
+
+        for (let i = 0; i < this.levelData[this.currentLevel].hordeNum; i++) {
             let size = Math.random() * 30 + 15;
             let left = Math.random() * 600 + 40;
             let top = Math.random() * 500 + 40;
@@ -699,7 +735,7 @@ let gameArrays = {
             let dx = this.randomDirection(-25, 25);
             let dy = this.randomDirection(-25, 25);
             let color = "#" + Math.floor(Math.random() * 16777215).toString(16).slice(2, 8).toUpperCase();
-            let bubbleID = `bubble-${i}`;
+            let bubbleID = `bubble-${this.currentLevel}-${i}`;
             let id_ = `horde-${this.currentLevel}-${i}`;
             let currentLevel = this.currentLevel;
             let levelsLived = [];
@@ -731,6 +767,9 @@ let gameArrays = {
         } else {
             console.log("Action is undefined!");
         };
+
+        this.enemyCount = this.currentHordeArr.length;
+        updateStats();
     },
     combineHordes: function () {
         let combinedArr = this.levelHordeArr.concat(this.teleportedHordeArr);
@@ -739,6 +778,8 @@ let gameArrays = {
     // Enter new level:
     enterLevel: function () {
         console.log(`Entering Level: ${this.currentLevel}.`);
+
+        hideBlaster(false);
 
         this.teleportedHordeArr = this.savedHorde;
         this.levelHordeArr = this.spawnHorde();
@@ -750,10 +791,11 @@ let gameArrays = {
         this.savedHorde.length = 0;
         this.updateHistory();
         this.deployed = this.currentHordeArr.length;
-        alert(`deployed: ${this.deployed}, currentLevel: ${this.currentLevel}`);
+        console.log(`deployed: ${this.deployed}, currentLevel: ${this.currentLevel}`);
         return this.deployed;
     },
     endLevel: function () {
+
         hideBlaster(true);
         console.log(`Ending Level: ${this.currentLevel}.`);
         this.displayMsg("show", "end");
@@ -765,6 +807,8 @@ let gameArrays = {
     },
     returnLevel: function (level) {
         console.log(`Returning to Level: ${level}.`);
+
+        hideBlaster(false);
 
         this.updateLevel(level);
         this.currentHordeArr = this.history[level].hordeArr;
@@ -874,6 +918,8 @@ let gameArrays = {
         } else {
             console.log("error: actionString not defined");
         };
+        updateStats();
+
     },
     spawnAmmo: function (ammoString) {
         let ammo = document.createElement("div");
@@ -941,7 +987,8 @@ let gameArrays = {
             modal.style.display = "block";
 
             if (msgType === "end") {
-                modalText.innerText = `You have completed level: ${this.currentLevel}. ${this.savedHorde.length} bubbles will be teleported to next level.`;
+                modalText.innerText = `You have completed level: ${this.currentLevel}. 
+                ${this.savedHorde.length} bubble(s) will be teleported to next level.`;
                 doneModal.style.display = "block";
                 readyModal.style.display = "none";
                 continueModal.style.display = "none";
@@ -1086,6 +1133,7 @@ function startGame() {
     // get level from local storage?
 
     startBtn.style.display = "none";
+
     afterLoading();
     gameArrays.updateLevel(currentLevel);
     gameArrays.displayMsg("show", "begin");
@@ -1096,36 +1144,34 @@ function startGame() {
 let levelLoop;
 
 function startLevel(levelOver, pathString) {
-    alert("starLevel():");
 
     if (levelOver == 0) {
-        alert("0");
-        
+
         let myBlaster = document.getElementById("blaster");
         myBlaster.style.display = "block";
         let myBlasterCoords = myBlaster.getBoundingClientRect();
         console.log("myBlasterCoords: start");
         console.log(myBlasterCoords);
-        
-        let turret = document.querySelector(".turret");
-        turret.style.display = "block";
-        
-        let crossHair = document.querySelector("#cross-hair");
-        crossHair.style.display = "block";
-        
-        let wing = document.querySelector(".wing");
-        wing.style.display = "block";
 
-        let hitBox = document.querySelector(".hit-box");
-        hitBox.style.display = "block";
-        
+        // let turret = document.querySelector(".turret");
+        // turret.style.display = "block";
+
+        // let crossHair = document.querySelector("#cross-hair");
+        // crossHair.style.display = "block";
+
+        // let wing = document.querySelector(".wing");
+        // wing.style.display = "block";
+
+        // let hitBox = document.querySelector(".hit-box");
+        // hitBox.style.display = "block";
+
         let count = 0;
         let deployed;
-        
+
         if (pathString === "start fresh") {
             gameArrays.gameStatus = "success";
             deployed = gameArrays.enterLevel();
-            
+
         } else if (pathString === "continue") {
             gameArrays.gameStatus = "success";
             deployed = gameArrays.enterLevel();
@@ -1138,12 +1184,10 @@ function startLevel(levelOver, pathString) {
 
         };
 
-        alert(deployed);
-
         //////////////////////// Generate Bubbles /////////////////////////////////
 
         function bubbleBlower() {
-            
+
             // TODO: add globalCount to track previous bubbles:
             if (count < gameArrays.currentHordeArr.length) {
 
@@ -1163,10 +1207,20 @@ function startLevel(levelOver, pathString) {
                 newBubble.style.backgroundColor = gameArrays.currentHordeArr[count].color;
                 gameArrays.currentHordeArr[count].drawn = true;
 
+                gameArrays.enemyCount = count + 1; // adding 1 (index count starts at zero)
+                updateStats();
+
                 count++
 
             } else {
                 clearInterval(gameLoop);
+                // gamescreen.addEventListener('mousemove', rotatePointer);
+                // gamescreen.addEventListener('touchmove', rotatePointer);
+                // gamescreen.addEventListener('touchstart', rotatePointer);
+                // gamescreen.addEventListener('mousedown', launcher);
+                let hitBox = document.querySelector(".hit-box");
+                hitBox.style.display = "block";
+                // TODO: add hit-box collisions here!
             };
         };
         let gameLoop = setInterval(bubbleBlower, 1000);
@@ -1183,10 +1237,14 @@ function startLevel(levelOver, pathString) {
 
                 for (let i = 0; i < gameArrays.currentHordeArr.length; i++) {
                     if (gameArrays.currentHordeArr[i].drawn === true) {
+                        let indexToMove = i;
 
-                        await gameArrays.currentHordeArr[i].updatePos("game-screen");
                         // await gameArrays.currentHordeArr[i].coordChecker(gameArrays.currentHordeArr[i].id, gameArrays.blaster.currentAmmo.laser.count);
-                        await gameArrays.currentHordeArr[i].movePos();
+
+                        await gameArrays.currentHordeArr[i].updatePos("game-screen", "touch-ship");
+                        // await gameArrays.currentHordeArr[i].movePos();
+                        // await gameArrays.currentHordeArr[i].updatePos("hit-box");
+                        // await gameArrays.currentHordeArr[i].movePos();
                     };
                 };
             } else if (gameArrays.currentHordeArr.length <= 0 && gameArrays.gameStatus === "success") {
@@ -1202,13 +1260,14 @@ function startLevel(levelOver, pathString) {
         levelLoop = setInterval(gameLoopTest, 150);
 
     } else if (levelOver == 1) {
-        
+
         let gamescreen = document.getElementById("game-screen");
+        // removes all bubble elements from gamescreen:
         gamescreen.innerHTML = "";
         clearInterval(levelLoop);
-        
+
         gameArrays.endLevel();
-        
+
     } else {
 
         if (gameArrays.gameStatus === "success") {
@@ -1219,7 +1278,7 @@ function startLevel(levelOver, pathString) {
 
         } else if (gameArrays.lives != 0) {
             gameArrays.displayMsg("show", "return");
-            
+
         } else {
             currentLevel = 0;
             this.globalCount = 0;
@@ -1244,10 +1303,13 @@ function hideBlaster(bool) {
         let hitBox = document.querySelector(".hit-box");
         hitBox.style.display = "none";
 
+        let fixedInfo = document.querySelectorAll(".fixed-info");
+        fixedInfo[0].style.display = "none";
+        fixedInfo[1].style.display = "none";
+
     } else {
         let turret = document.querySelector(".turret");
         turret.style.display = "block";
-        // let turretCoords = myBlaster.getBoundingClientRect();
 
         let crossHair = document.querySelector("#cross-hair");
         crossHair.style.display = "block";
@@ -1257,6 +1319,11 @@ function hideBlaster(bool) {
 
         let hitBox = document.querySelector(".hit-box");
         hitBox.style.display = "block";
+
+        let fixedInfo = document.querySelectorAll(".fixed-info");
+        fixedInfo[0].style.display = "flex";
+        fixedInfo[1].style.display = "flex";
+        updateStats();
 
     };
 };
@@ -1289,14 +1356,13 @@ function isLaunched(element) {
     return element.ready == false;
 };
 
-
 function removeItemFromArr(index, arrayToRemoveFrom) {
     arrayToRemoveFrom.splice(index, 1);
 };
 
 function coordChecker(elemID, arrayToCheck) {
     let elem = document.getElementById(elemID);
-    if (typeof elem != "null") {
+    if (typeof (elem) != 'undefined' && elem != null) {
         let elemCoords = elem.getBoundingClientRect();
         // let itemBoxArray = document.querySelectorAll(".item-box");
         for (let i = 0; i < arrayToCheck.length; i++) {
@@ -1312,4 +1378,21 @@ function coordChecker(elemID, arrayToCheck) {
             };
         };
     };
+};
+
+function updateStats() {
+    let healthStats = document.getElementById("health-status");
+    healthStats.innerText = gameArrays.health;
+
+    let enemyCount = document.getElementById("enemy-count");
+    enemyCount.innerText = gameArrays.enemyCount;
+
+    let plasmaCount = document.getElementById("plasma-ball-count");
+    plasmaCount.innerText = gameArrays.blaster.currentAmmo.laser.count.length;
+
+    let bombCount = document.getElementById("time-bomb-count");
+    bombCount.innerText = gameArrays.blaster.currentAmmo.bomb.count.length;
+
+    let lifeCount = document.getElementById("life-count");
+    lifeCount.innerText = gameArrays.lives;
 };

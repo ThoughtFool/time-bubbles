@@ -9,7 +9,30 @@
 </head>
 
 <body>
-    <div id="game-screen"></div>
+    <!-- ************ player info ************ -->
+    <div class="game-info">
+        <div class="fixed-info">
+            <div id="left-side">
+                <div class="slide-deck">
+                    <div class="stats">ENEMY COUNT: <span id="enemy-count"></span></div>
+                    <div class="stats">HEALTH: <span id="health-status"></span></div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="fixed-info">
+            <div id="right-side">
+                <div class="slide-deck">
+                    <div class="stats">PLASMA CANNON: <span id="plasma-ball-count"></span></div>
+                    <div class="stats">TIME BOMB: <span id="time-bomb-count"></span></div>
+                    <div class="stats">LIVES: <span id="life-count"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-screen" class="surface">
+    </div>
     <!-- <div id="game-title">
         <h1>The Nation of Crasti</h1>
     </div> -->
@@ -21,20 +44,19 @@
         <button id="ready-modal">READY!</button>
         <button id="continue-modal">CONTINUE!</button>
         <button id="return-modal">RETURN!</button>
-        <button id="done-modal">DONE!</button>        
+        <button id="done-modal">DONE!</button>
     </div>
 
-    <div class="hit-box">
-        <div class="force-field">
-            <!-- <span></span> -->
-        </div>
+    <div class="hit-box" id="hit-box">
+        <div class="force-field"></div>
+        <div id="touch-ship"></div>
     </div>
     <div id="blaster"></div>
     <div class="wing"></div>
-    <div class="turret">
+    <div class="surface turret">
         <div id="cross-hair"></div>
     </div>
-    <!-- <div class="shockwave"></div> -->
+
     <script src="./index.js"></script>
 </body>
 
