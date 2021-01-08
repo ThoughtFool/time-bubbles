@@ -1,0 +1,23 @@
+{
+    "name": "now-or-later",
+    "version": "1.0.0",
+    "description": "Simple game to demonstrate the pitfalls of procrastination.",
+    "main": "server.js",
+    "scripts": {
+        "dev": "nodemon server.js",
+        "start": "node server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ThoughtFool/now-or-later.git"
+    },
+    "author": "Heyou ThoughtFool",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/ThoughtFool/now-or-later/issues"
+    },
+    "homepage": "https://github.com/ThoughtFool/now-or-later#readme",
+    "dependencies": {
+        "express": "^4.17.1"
+    }
+}
