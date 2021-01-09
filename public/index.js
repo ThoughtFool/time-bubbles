@@ -1090,6 +1090,7 @@ let gameArrays = {
     displayMsg: function (msgStatus, msgType) {
         let modal = document.getElementById("modal-bg");
         let modalText = document.querySelector(".modal-text");
+        let modalBody = document.querySelector(".modal-body");
         let readyModal = document.getElementById("ready-modal");
         let continueModal = document.getElementById("continue-modal");
         let returnModal = document.getElementById("return-modal");
@@ -1142,7 +1143,7 @@ let gameArrays = {
                 continueModal.style.display = "none";
                 returnModal.style.display = "block";
 
-            } else if ("play again") {
+            } else if (msgType === "play again") {
                 modalText.innerText = `Game over! Want to play again?`;
                 readyModal.style.display = "none";
                 doneModal.style.display = "none";
@@ -1150,9 +1151,34 @@ let gameArrays = {
                 continueModal.style.display = "none";
                 returnModal.style.display = "none";
 
+            } else if (msgType === "loading") {
+                readyModal.style.display = "none";
+                doneModal.style.display = "none";
+                continueModal.style.display = "none";
+                returnModal.style.display = "none";
+                // modalText.style.transform = "translateY(-50px)";
+                modalText.innerText = 
+                `CAUTION     CAUTION
+                LOADING     ENEMIES
+                CAUTION     CAUTION`;
+                // modalBody.style.backgroundImage = "";
+                // modalBody.style.opacity = 0;
+                modalText.style.opacity = .15;
+                modalText.classList.add("glow");
+
+                readyModal.style.display = "none";
+                doneModal.style.display = "none";
+                continueModal.style.display = "none";
+                returnModal.style.display = "none";
+
             } else {
                 console.log("error");
             };
+        } else if (msgStatus === "hide") {
+            modalText.style.opacity = 1;
+            modalText.classList.remove("glow");
+            modal.style.display = "none";
+
         } else {
             console.log("error");
         };
@@ -1341,15 +1367,22 @@ function startLevel(levelOver, pathString) {
 
             // TODO: add globalCount to track previous bubbles:
             if (count < gameArrays.currentHordeArr.length) {
-
+                
+                // trigger message then remove just before last bubble is added to DOM: 
+                if (count >= gameArrays.currentHordeArr.length - 1) {
+                    gameArrays.displayMsg("hide");
+                } else {
+                    gameArrays.displayMsg("show", "loading");
+                };
+                
                 let gamescreen = document.querySelector("#game-screen");
                 let bubble = document.createElement("div");
                 let bubbleID = gameArrays.currentHordeArr[count].id;
                 bubble.id = bubbleID;
                 bubble.classList.add("enemy", "bubble");
-
+                
                 gamescreen.append(bubble);
-
+                
                 let newBubble = document.getElementById(bubbleID);
                 newBubble.style.height = `${gameArrays.currentHordeArr[count].size}px`;
                 newBubble.style.width = `${gameArrays.currentHordeArr[count].size}px`;
