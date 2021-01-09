@@ -11,6 +11,7 @@ body {
     overflow-y: hidden;
     align-items: center;
     justify-content: center;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
 .fixed-info {
@@ -96,6 +97,7 @@ body {
     justify-content: center;
     background-image: linear-gradient(rgba(255, 255, 255, 0.575), rgba(128, 128, 128, 0.521));
     border-radius: 25px;
+    animation: shifty 2.5s ease-in-out infinite alternate;
 }
 
 .modal-text {
@@ -440,8 +442,6 @@ body {
     color: #fff;
     text-align: center;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    -webkit-animation: glow 1s ease-in-out infinite alternate;
-    -moz-animation: glow 1s ease-in-out infinite alternate;
     animation: glow 1s ease-in-out infinite alternate;
 }
 
@@ -466,7 +466,16 @@ body {
     }
 
     75% {
-        transform: rotate(360);
+        opacity: 0.5;
+    }
+}
+
+@keyframes shifty {
+    25% {
+
+    }
+
+    75% {
         opacity: 0.5;
     }
 }
@@ -476,6 +485,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    /* transition: bottom 1.5s ease-in-out; */
 }
 
 #intro-msg {
@@ -484,6 +494,7 @@ body {
     height: 100%;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     color: rgb(185, 228, 245);
+    transition: .5s all;
 }
 
 .enter-btn {
@@ -507,6 +518,7 @@ body {
 }
 
 #num-seq {
+    margin: 0;
     top: 0;
     left: 0;
     display: block;
@@ -515,7 +527,7 @@ body {
     height: 100vh;
     color: whitesmoke;
     text-align: center;
-    font-size: 90vw;
+    font-size: 90vh;
     line-height: 95vh;
     animation: glow 1s ease-in-out infinite alternate;
 }

@@ -1,3 +1,30 @@
+if (window.addEventListener) {
+    window.addEventListener('load', playThemeMusic, false); //W3C
+} else {
+    window.attachEvent('onload', playThemeMusic); //IE
+};
+
+function playThemeMusic() {
+    let context = new AudioContext();
+
+    let themeMusic = document.getElementById("theme-song");
+    let promise = themeMusic.play();
+    if (promise !== undefined) {
+        promise.then(_ => {
+            // Autoplay started!
+        }).catch(error => {
+            // Autoplay was prevented.
+            // Show a "Play" button so that user can start playback.
+        });
+    };
+
+    document.querySelector('button').addEventListener('click', function () {
+        context.resume().then(() => {
+            console.log('Playback resumed successfully');
+        });
+    });
+};
+
 class Bullet {
     constructor(id, xPos, yPos, angle, speed, ammoString, height, width, ready) {
         this.id = id;
@@ -268,7 +295,7 @@ function bubbleBuilder(id_, currentLevel, levelsLived, xPos, yPos, radius, dx, d
 
 const quotes = [{
         author: "Abraham Lincoln",
-        text: "You cannot escape the respnsibility of tomorrow by evading it today.",
+        text: "You cannot escape the responsibility of tomorrow by evading it today.",
         race: "human"
     },
     {
@@ -278,7 +305,7 @@ const quotes = [{
     },
     {
         author: "Charles Dickens",
-        text: "Procrastination is the theif of time.",
+        text: "Procrastination is the thief of time.",
         race: "human"
     },
     {
@@ -288,7 +315,7 @@ const quotes = [{
     },
     {
         author: "Israelmore Ayivor",
-        text: "The day you procratinate, you loose that day's sucess.",
+        text: "The day you procratinate, you loose that day's success.",
         race: "human"
     },
     {
@@ -454,6 +481,8 @@ function afterLoading() {
             let ammoString = "laser";
 
             if (gameArrays.blaster.currentAmmo[ammoString].count.length >= 1) {
+                let laserSound = document.getElementById("laser-sound");
+                laserSound.play();
 
                 // removes from storage to ready status: 
                 let ammoStatus = gameArrays.shootBlaster(ammoString);
@@ -1193,6 +1222,8 @@ async function naviCtrl(value) {
         let ammoString = "bomb";
 
         if (gameArrays.blaster.currentAmmo[ammoString].count.length > 0) {
+            let bombSound = document.getElementById("bomb-sound");
+            bombSound.play();
 
             let indexReady = gameArrays.shootBlaster(ammoString);
             let hitBox = document.querySelector(".hit-box");
