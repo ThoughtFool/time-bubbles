@@ -91,48 +91,48 @@ class Bomb {
             coords = shockwave.getBoundingClientRect();
             pathway = "shockwave";
             result = "explode";
-            
+
             // let hitBox = document.querySelector(".hit-box");
             // let hitBoxCoords = hitBox.getBoundingClientRect();
             let arrayToCheck = gameArrays.currentHordeArr;
-            
+
             for (let i = 0; i < gameArrays.currentHordeArr.length; i++) {
                 let arrElem = document.getElementById(`${gameArrays.currentHordeArr[i].id}`);
                 let arrItem = arrElem.getBoundingClientRect();
-                
+
                 if (arrItem.left < coords.right &&
                     arrItem.right > coords.left &&
                     arrItem.top < coords.bottom &&
                     arrItem.bottom > coords.top) {
-                        
-                        // removeElem(this.id):
-                        // if (pathway === "shockwave") { // add teleports if(bomb):
-                        
-                        gameArrays.currentHordeArr[i].dx = -gameArrays.currentHordeArr[i].dx;
-                        gameArrays.currentHordeArr[i].dy = -gameArrays.currentHordeArr[i].dy;
-                        
-                        gameArrays.currentHordeArr[i].xPos += (gameArrays.currentHordeArr[i].dx);
-                        gameArrays.currentHordeArr[i].yPos += (gameArrays.currentHordeArr[i].dy);
 
-                        gameArrays.updateHorde(i, "teleport");
-                        
-                        // };
-                        // else { // add hits:
-                        //     gameArrays.health -= 20;
-                        //     console.log(gameArrays.currentHordeArr[i].id);
-                        //     gameArrays.currentHordeArr[i].dx = -this.dx;
-                        //     gameArrays.currentHordeArr[i].dy = -this.dy;
-                        
-                        //     alert(`Careful there! You health is now: ${gameArrays.health}.`);
-                        
-                        //     // setTimeout(() => {
-                            
-                            //     // }, 2000);
-                            // };
-                            return result;
-                        };
-                    };
-                };        
+                    // removeElem(this.id):
+                    // if (pathway === "shockwave") { // add teleports if(bomb):
+
+                    gameArrays.currentHordeArr[i].dx = -gameArrays.currentHordeArr[i].dx;
+                    gameArrays.currentHordeArr[i].dy = -gameArrays.currentHordeArr[i].dy;
+
+                    gameArrays.currentHordeArr[i].xPos += (gameArrays.currentHordeArr[i].dx);
+                    gameArrays.currentHordeArr[i].yPos += (gameArrays.currentHordeArr[i].dy);
+
+                    gameArrays.updateHorde(i, "teleport");
+
+                    // };
+                    // else { // add hits:
+                    //     gameArrays.health -= 20;
+                    //     console.log(gameArrays.currentHordeArr[i].id);
+                    //     gameArrays.currentHordeArr[i].dx = -this.dx;
+                    //     gameArrays.currentHordeArr[i].dy = -this.dy;
+
+                    //     alert(`Careful there! You health is now: ${gameArrays.health}.`);
+
+                    //     // setTimeout(() => {
+
+                    //     // }, 2000);
+                    // };
+                    return result;
+                };
+            };
+        };
         return " ";
     };
 };
@@ -157,7 +157,7 @@ function bubbleBuilder(id_, currentLevel, levelsLived, xPos, yPos, radius, dx, d
     this.area = (Math.PI * radius * radius) / 10000;
     this.bubbleElem = "";
     this.updatePos = function (elemIDTouched, elemIDTouched2, tempField, tempFieldActive) {
-        
+
         if (tempFieldActive == true) {
             elemIDTouched2 = tempField;
         };
@@ -170,52 +170,52 @@ function bubbleBuilder(id_, currentLevel, levelsLived, xPos, yPos, radius, dx, d
 
         let bubbleElem = document.getElementById(this.id);
 
-            if (this.xPos + this.dx < this.radius || this.xPos + this.dx > elemCoords.width - this.radius) {
-                this.dx = -this.dx;
-            };
+        if (this.xPos + this.dx < this.radius || this.xPos + this.dx > elemCoords.width - this.radius) {
+            this.dx = -this.dx;
+        };
 
-            if (this.yPos + this.dy < this.radius || this.yPos + this.dy > elemCoords.height - this.radius) {
-                this.dy = -this.dy;
-            };
+        if (this.yPos + this.dy < this.radius || this.yPos + this.dy > elemCoords.height - this.radius) {
+            this.dy = -this.dy;
+        };
 
-            if (this.xPos < elemCoords2.right - this.radius &&
-                this.xPos + this.size > elemCoords2.left + this.radius &&
-                this.yPos < elemCoords2.bottom - this.radius &&
-                this.yPos + this.size > elemCoords2.top + this.radius) {
+        if (this.xPos < elemCoords2.right - this.radius &&
+            this.xPos + this.size > elemCoords2.left + this.radius &&
+            this.yPos < elemCoords2.bottom - this.radius &&
+            this.yPos + this.size > elemCoords2.top + this.radius) {
 
-                if (tempFieldActive !== true) {
+            if (tempFieldActive !== true) {
 
-                    if (gameArrays.health <= 0) {
-                        gameArrays.health = 100;
-                        gameArrays.lives --;
-                        alert(`Warning! You only have ${gameArrays.lives} left.`);
-                        
-                    } else {
-                        gameArrays.health -= 5;
-                    };
+                if (gameArrays.health <= 0) {
+                    gameArrays.health = 100;
+                    gameArrays.lives--;
+                    alert(`Warning! You only have ${gameArrays.lives} left.`);
 
-                    let forceField = document.querySelector(".force-field");
-                    forceField.classList.add("collision-detected");
-
-                    // let gamescreen = document.querySelector("gamescreen");
-                    gamescreen.classList.add("color-flash");
-                
-                    setTimeout(() => {
-                        forceField.classList.remove("collision-detected");
-                        gamescreen.classList.remove("color-flash");
-                        // bubbleElem.classList.remove("collision-detected");
-                    }, 500);
-
-                    updateStats();
+                } else {
+                    gameArrays.health -= 5;
                 };
 
-                this.dx = -this.dx;
-                this.dy = -this.dy;
+                let forceField = document.querySelector(".force-field");
+                forceField.classList.add("collision-detected");
+
+                // let gamescreen = document.querySelector("gamescreen");
+                gamescreen.classList.add("color-flash");
+
+                setTimeout(() => {
+                    forceField.classList.remove("collision-detected");
+                    gamescreen.classList.remove("color-flash");
+                    // bubbleElem.classList.remove("collision-detected");
+                }, 500);
+
+                updateStats();
             };
 
-            this.xPos += this.dx;
-            this.yPos += this.dy;
-            
+            this.dx = -this.dx;
+            this.dy = -this.dy;
+        };
+
+        this.xPos += this.dx;
+        this.yPos += this.dy;
+
         this.movePos();
     };
     this.movePos = function () {
@@ -264,6 +264,43 @@ function bubbleBuilder(id_, currentLevel, levelsLived, xPos, yPos, radius, dx, d
             return false;
         }
     };
+};
+
+const quotes = [{
+        author: "Abraham Lincoln",
+        text: "You cannot escape the respnsibility of tomorrow by evading it today.",
+        race: "human"
+    },
+    {
+        author: "Janet Dailey",
+        text: "Someday is not a day of the week.",
+        race: "human"
+    },
+    {
+        author: "Charles Dickens",
+        text: "Procrastination is the theif of time.",
+        race: "human"
+    },
+    {
+        author: "Leonardo da Vinci",
+        text: "It is easier to resist at the beginning than at the end.",
+        race: "human"
+    },
+    {
+        author: "Israelmore Ayivor",
+        text: "The day you procratinate, you loose that day's sucess.",
+        race: "human"
+    },
+    {
+        author: "Bejanmin Franklin",
+        text: "Never leave till tomorrow that which you can do today.",
+        race: "human"
+    }
+];
+
+function getQuote() {
+    let randomIndex = Math.floor(Math.random() * quotes.length);
+    return quotes[randomIndex];
 };
 
 let rotatePointer;
@@ -761,8 +798,8 @@ let gameArrays = {
         let randomRange2 = Math.floor(Math.random() * (max - minRange) + minRange);
         let rangeArr = [randomRange1, randomRange2];
         let coinFlip = Math.floor(Math.random() * 2);
-        
-            return rangeArr[coinFlip];
+
+        return rangeArr[coinFlip];
     },
     spawnHorde: function () {
         let hordeArr = [];
@@ -778,7 +815,7 @@ let gameArrays = {
             let size = Math.random() * 30 + 15;
             // let left = Math.random() * 600 + 40;
             // let top = Math.random() * 500 + 40;
-            
+
             // let left = this.randomNumber(gamescreenCoords.left + size, gamescreenCoords.right - size, 150);
             // let top = this.randomNumber(gamescreenCoords.top + size, gamescreenCoords.bottom - size, 150);
 
@@ -1058,7 +1095,12 @@ let gameArrays = {
                 returnModal.style.display = "none";
 
             } else if (msgType === "continue") {
-                modalText.innerText = `Entering Next Level: ${this.currentLevel}. Ready?`;
+                let newQuote = getQuote();
+                modalText.innerText = `Entering Next Level: ${this.currentLevel}. Ready?
+                
+                ${newQuote.text}
+                ~ ${newQuote.author}`;
+
                 readyModal.style.display = "none";
                 doneModal.style.display = "none";
                 continueModal.style.display = "block";
@@ -1131,7 +1173,7 @@ let gameArrays = {
 // gameArrays.endLevel();
 
 let startBtn = document.querySelector(".startBtn");
-startBtn.addEventListener("click", startGame);
+startBtn.addEventListener("click", launchSequence);
 
 async function naviCtrl(value) {
 
@@ -1182,12 +1224,34 @@ const bubbleArray = [];
 const weaponArray = [];
 let currentLevel = 0;
 
+function launchSequence() {
+    startBtn.style.display = "none";
+    let count = 0;
+    let numCounterArr = [3, 2, 1];
+    let numSeq = document.getElementById("num-seq");
+    numSeq.style.display = "block";
+
+    function countdown() {
+
+        if (count < numCounterArr.length) {
+            numSeq.innerText = numCounterArr[count];
+            count++
+        } else {
+            clearInterval(liftOff);
+            numSeq.style.display = "none";
+
+            startGame();
+        };
+    };
+
+    let liftOff = setInterval(countdown, 1000);
+};
+
 // testing event loop:
 function startGame() {
     let currentLevel = 0;
 
     // get level from local storage?
-
     startBtn.style.display = "none";
 
     afterLoading();
@@ -1270,13 +1334,13 @@ function startLevel(levelOver, pathString) {
 
             } else {
                 clearInterval(gameLoop);
-                
+
                 let hitBox = document.querySelector(".hit-box");
                 hitBox.style.display = "block";
-                
+
                 let touchShip = document.getElementById("touch-ship");
                 touchShip.style.display = "block";
-                
+
                 gameArrays.fieldActive = false;
                 let tempField = document.getElementById("temp-field");
                 tempField.style.display = "none";
