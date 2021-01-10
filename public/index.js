@@ -1260,8 +1260,8 @@ async function naviCtrl(value) {
             function bombLoop() {
                 if (exists != "explode") {
                     gameArrays.blaster.currentAmmo[ammoString].shots[indexReady].tick();
+                    requestAnimationFrame(bombLoop);
                 };
-                requestAnimationFrame(bombLoop);
             };
             setTimeout(() => {
                 hitBox.classList.remove("shockwave");
@@ -1434,6 +1434,8 @@ function startLevel(levelOver, pathString) {
                         // await gameArrays.currentHordeArr[i].movePos();
                     };
                 };
+                // requestAnimationFrame(gameLoopTest);
+
             } else if (gameArrays.currentHordeArr.length <= 0 && gameArrays.gameStatus === "success") {
                 console.log("Congrats, you won!");
                 startLevel(1, gameArrays.gameStatus);
