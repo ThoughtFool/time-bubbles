@@ -60,8 +60,6 @@ class Bullet {
             return "explode";
         } else {
             let laserCoords = myLaser.getBoundingClientRect();
-            let arrayToCheck = gameArrays.currentHordeArr;
-            // let itemBoxArray = document.querySelectorAll(".item-box");
             for (let i = 0; i < gameArrays.currentHordeArr.length; i++) {
                 let arrElem = document.getElementById(`${gameArrays.currentHordeArr[i].id}`);
                 let arrItem = arrElem.getBoundingClientRect();
@@ -70,7 +68,6 @@ class Bullet {
                     arrItem.right > laserCoords.left &&
                     arrItem.top < laserCoords.bottom &&
                     arrItem.bottom > laserCoords.top) {
-                    // return arrayToCheck[i].id;
                     removeElem(this.id);
                     this.dx = 0.0;
                     this.dy = 0.0;
@@ -80,13 +77,6 @@ class Bullet {
 
                     return "explode";
                 };
-                // else if (arrItem.left < laserCoords.right &&
-                //     arrItem.right > this.xPos &&
-                //     arrItem.top < laserCoords.bottom &&
-                //     arrItem.bottom > this.yPos) {
-                //     // return arrayToCheck[i].id;
-                //     return "explode";
-                // };
             };
         };
         return " ";
@@ -107,9 +97,7 @@ class Bomb {
 
     tick() {
 
-        // let myBomb = document.getElementById(this.id);
         let shockwave = document.querySelector(".shockwave");
-        let hitBox = document.querySelector(".hit-box");
         let result;
         let pathway;
         let coords;
@@ -118,10 +106,6 @@ class Bomb {
             coords = shockwave.getBoundingClientRect();
             pathway = "shockwave";
             result = "explode";
-
-            // let hitBox = document.querySelector(".hit-box");
-            // let hitBoxCoords = hitBox.getBoundingClientRect();
-            let arrayToCheck = gameArrays.currentHordeArr;
 
             for (let i = 0; i < gameArrays.currentHordeArr.length; i++) {
                 let arrElem = document.getElementById(`${gameArrays.currentHordeArr[i].id}`);
@@ -132,9 +116,6 @@ class Bomb {
                     arrItem.top < coords.bottom &&
                     arrItem.bottom > coords.top) {
 
-                    // removeElem(this.id):
-                    // if (pathway === "shockwave") { // add teleports if(bomb):
-
                     gameArrays.currentHordeArr[i].dx = -gameArrays.currentHordeArr[i].dx;
                     gameArrays.currentHordeArr[i].dy = -gameArrays.currentHordeArr[i].dy;
 
@@ -143,19 +124,6 @@ class Bomb {
 
                     gameArrays.updateHorde(i, "teleport");
 
-                    // };
-                    // else { // add hits:
-                    //     gameArrays.health -= 20;
-                    //     console.log(gameArrays.currentHordeArr[i].id);
-                    //     gameArrays.currentHordeArr[i].dx = -this.dx;
-                    //     gameArrays.currentHordeArr[i].dy = -this.dy;
-
-                    //     alert(`Careful there! You health is now: ${gameArrays.health}.`);
-
-                    //     // setTimeout(() => {
-
-                    //     // }, 2000);
-                    // };
                     return result;
                 };
             };
@@ -224,7 +192,6 @@ function bubbleBuilder(id_, currentLevel, levelsLived, xPos, yPos, radius, dx, d
                 let forceField = document.querySelector(".force-field");
                 forceField.classList.add("collision-detected");
 
-                // let gamescreen = document.querySelector("gamescreen");
                 gamescreen.classList.add("color-flash");
 
                 setTimeout(() => {
@@ -259,7 +226,6 @@ function bubbleBuilder(id_, currentLevel, levelsLived, xPos, yPos, radius, dx, d
         console.log(elemID);
         if (typeof (elem) != 'undefined' && elem != null && arrayToCheck.length > 0) {
             let elemCoords = elem.getBoundingClientRect();
-            // let itemBoxArray = document.querySelectorAll(".item-box");
             for (let i = 0; i < arrayToCheck.length; i++) {
 
                 let arrElem = document.getElementById(`${arrayToCheck[i].id}`);
@@ -405,9 +371,6 @@ function afterLoading() {
                 myLaser.style.left = `${newPosX}px`;
                 myLaser.style.top = `${newPosY}px`;
 
-                // bullet.render();
-                // player.render();
-
                 exists = projectile.tick();
 
                 if (exists === "explode") {
@@ -461,7 +424,6 @@ function afterLoading() {
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        let crossHair = document.getElementById("cross-hair");
         let myTurret = document.querySelector(".turret");
         let wing = document.querySelector(".wing");
 
@@ -653,7 +615,6 @@ let gameArrays = {
             }
         },
         deg: 0,
-        // shots: [],
         noseX: gamescreenCoords.width / 2 + 15,
         noseY: gamescreenCoords.height / 2,
         radius: 15,
@@ -667,30 +628,20 @@ let gameArrays = {
         let myBlaster = document.getElementById("blaster");
         myBlaster.style.position = "absolute";
 
-        // console.log("this.blasterCannon.rot");
-        // console.log(this.blasterCannon.rot);
         console.log("this.blaster.angle");
         console.log(this.blaster.angle);
 
         let newDeg = this.radsToDegs(this.blaster.angle);
-        // let newDegY = this.radsToDegs(this.blaster.noseY);
         console.log("newDeg");
         console.log(newDeg);
         let rads = this.blaster.angle / Math.PI * 180;
         console.log(90 + rads * 360);
 
-        // console.log("newDegY");
-        // console.log(newDegY);
-
         if (direction === "clockwise" || direction === 1) {
-            // if (direction === "clockwise" && newDeg < 180) {
             myBlaster.style.transform = `rotate(${90 + rads * 360}deg)`;
-            // this.blasterCannon.a += this.blasterCannon.rot;
 
         } else if (direction === "counter-clockwise" || direction === -1) {
-            // } else if (direction === "counter-clockwise" && newDeg > 0) {
             myBlaster.style.transform = `rotate(${90 + rads * 360}deg)`;
-            // this.blasterCannon.a += this.blasterCannon.rot;
 
         } else {
             console.log("error");
@@ -731,8 +682,6 @@ let gameArrays = {
     shootBlaster: function (ammoString) {
         console.log("weapons system is armed");
 
-        // testing ONLY:
-        // let index = projectileCount;
         let index = 0;
         let indexReady;
         if (this.blaster.currentAmmo[ammoString].count.length > 0) {
@@ -747,7 +696,6 @@ let gameArrays = {
                 console.log(this.blaster.currentAmmo[ammoString].count);
 
             } else if (ammoString === "bomb") {
-                // updateBeam(this.blaster.currentAmmo[ammoString].shots[indexReady]);
 
                 let projectile = this.blaster.currentAmmo[ammoString].count[index];
                 this.blaster.currentAmmo[ammoString].shots.push(projectile);
@@ -760,9 +708,7 @@ let gameArrays = {
             };
             updateStats();
 
-            // this.fireWeapon(ammoString, 0);
             return indexReady;
-            return "locked & loaded";
 
         } else {
             console.log("no weapons");
@@ -797,7 +743,6 @@ let gameArrays = {
 
             this.bombCount++;
         };
-        // this.blaster.currentAmmo[ammoString].count.push(newProjectile);
     },
     updateLaser: function () {
         // TODO: make loop for all projectiles or make a method of laser/bomb:
@@ -832,7 +777,7 @@ let gameArrays = {
     },
     spawnHorde: function () {
         let hordeArr = [];
-        let ceilCount = this.levelData[this.currentLevel].hordeNum + this.globalCount;
+        // let ceilCount = this.levelData[this.currentLevel].hordeNum + this.globalCount;
         let tempField = document.getElementById("temp-field");
 
         let tempFieldCoords = tempField.getBoundingClientRect();
@@ -1009,15 +954,12 @@ let gameArrays = {
     // TODO: merge laser/bomb:
     fireWeapon: function (actionString) {
         if (actionString == "laser" && this.blaster.currentAmmo[actionString].count.length > 0) {
-            // TODO: move updateHorde to collison detection:
-            // this.updateHorde(indexOfBubble, "destroy");
 
             this.updateAmmo("remove", actionString);
 
         } else if (actionString == "bomb" && this.blaster.currentAmmo[actionString].count.length > 0) {
             // TODO: move updateHorde to collison detection && edit updateHorde string some you can REMOVE "else if" (redundant)
             // "bomb" == "teleport" && "laser" == "destroy"
-            // this.updateHorde(indexOfBubble, "teleport");
 
             this.updateAmmo("remove", actionString);
 
@@ -1030,12 +972,10 @@ let gameArrays = {
         if (actionString === "remove") {
             let notReadyIndex = this.blaster.currentAmmo[ammoString].shots.findIndex(isLaunched);
             this.blaster.currentAmmo[ammoString].shots.splice(notReadyIndex, 0);
-            // this.blaster.currentAmmo[ammoString].count.pop();
 
         } else if (actionString === "add" && this.blaster.currentAmmo[ammoString].count.length < this.blaster.currentAmmo[ammoString].limit) {
 
             this.makeAmmo(this.blaster.angle, ammoString);
-            // this.blaster.currentAmmo[ammoString].count.push(ammoString);
 
         } else {
             console.log("error: actionString not defined");
@@ -1103,8 +1043,6 @@ let gameArrays = {
 
         if (msgStatus === "ready") {
             modal.style.display = "none";
-            // this.enterLevel(this.currentLevel);
-            // startLevel(0);
 
         } else if (msgStatus === "show") {
             modal.style.display = "block";
@@ -1156,13 +1094,10 @@ let gameArrays = {
                 doneModal.style.display = "none";
                 continueModal.style.display = "none";
                 returnModal.style.display = "none";
-                // modalText.style.transform = "translateY(-50px)";
                 modalText.innerText = 
                 `CAUTION     CAUTION
                 LOADING     ENEMIES
                 CAUTION     CAUTION`;
-                // modalBody.style.backgroundImage = "";
-                // modalBody.style.opacity = 0;
                 modalText.style.opacity = .15;
                 modalText.classList.add("glow");
 
@@ -1330,18 +1265,6 @@ function startLevel(levelOver, pathString) {
         console.log("myBlasterCoords: start");
         console.log(myBlasterCoords);
 
-        // let turret = document.querySelector(".turret");
-        // turret.style.display = "block";
-
-        // let crossHair = document.querySelector("#cross-hair");
-        // crossHair.style.display = "block";
-
-        // let wing = document.querySelector(".wing");
-        // wing.style.display = "block";
-
-        // let hitBox = document.querySelector(".hit-box");
-        // hitBox.style.display = "block";
-
         let count = 0;
         let deployed;
 
@@ -1426,21 +1349,15 @@ function startLevel(levelOver, pathString) {
                     if (gameArrays.currentHordeArr[i].drawn === true) {
                         let indexToMove = i;
 
-                        // await gameArrays.currentHordeArr[i].coordChecker(gameArrays.currentHordeArr[i].id, gameArrays.blaster.currentAmmo.laser.count);
-
                         await gameArrays.currentHordeArr[i].updatePos("game-screen", "touch-ship", "temp-field", gameArrays.fieldActive);
-                        // await gameArrays.currentHordeArr[i].movePos();
-                        // await gameArrays.currentHordeArr[i].updatePos("hit-box");
-                        // await gameArrays.currentHordeArr[i].movePos();
+
                     };
                 };
                 // requestAnimationFrame(gameLoopTest);
 
             } else if (gameArrays.currentHordeArr.length <= 0 && gameArrays.gameStatus === "success") {
-                console.log("Congrats, you won!");
                 startLevel(1, gameArrays.gameStatus);
             } else {
-                console.log("Sorry, you lost!");
                 gameArrays.gameStatus = "failure";
                 gameArrays.lives--;
                 startLevel(1, "failure");
@@ -1461,7 +1378,6 @@ function startLevel(levelOver, pathString) {
 
         if (gameArrays.gameStatus === "success") {
             gameArrays.currentLevel++;
-            // currentLevel++;
             gameArrays.updateLevel(gameArrays.currentLevel);
             gameArrays.displayMsg("show", "continue");
 
@@ -1562,7 +1478,6 @@ function coordChecker(elemID, arrayToCheck) {
     let elem = document.getElementById(elemID);
     if (typeof (elem) != 'undefined' && elem != null) {
         let elemCoords = elem.getBoundingClientRect();
-        // let itemBoxArray = document.querySelectorAll(".item-box");
         for (let i = 0; i < arrayToCheck.length; i++) {
             let arrElem = document.getElementById(`${arrayToCheck[i].id}`);
             let arrItem = arrElem.getBoundingClientRect();
@@ -1571,7 +1486,6 @@ function coordChecker(elemID, arrayToCheck) {
                 arrItem.right > elemCoords.left &&
                 arrItem.top < elemCoords.bottom &&
                 arrItem.bottom > elemCoords.top) {
-                // return arrayToCheck[i].id;
                 return "explode";
             };
         };
