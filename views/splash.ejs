@@ -5,17 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Time Bubbles</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="images/time-ship-favicon.ico" type="image/x-icon">
+    <link rel="icon" href="images/time-ship-favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
     <h1 class="glow">TIME BUBBLES</h1>
     <div id="time-bubble"></div>
 
-        <a class="enter-btn" href="/game">ENTER</a>
+    <a class="enter-btn" href="/game">ENTER</a>
+    <div class="skip-btn">
+        <div class="skip-btn-text">SKIP</div>
+    </div>
 
     <div class="msg-block">
-        <h2 id="intro-msg"></h2>
+        <h2 id="intro-msg">How cute! A magical, little bubble.</h2>
     </div>
 
     <div id="game-screen" class="surface"></div>
@@ -25,13 +30,14 @@
         <div class="modal-body">
             <h1 class="modal-text"></h1>
         </div>
+        <!-- TODO: add button partial that passes in id and text -->
         <button id="ready-modal">READY!</button>
         <button id="continue-modal">CONTINUE!</button>
         <button id="return-modal">RETURN!</button>
         <button id="done-modal">DONE!</button>
     </div>
 
-    <script src="./intro.js"></script>
+    <script src="./js/intro.js"></script>
 </body>
 
 </html>

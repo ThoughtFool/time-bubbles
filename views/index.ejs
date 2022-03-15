@@ -5,7 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Now and Later</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="images/time-ship-favicon.ico" type="image/x-icon">
+    <link rel="icon" href="images/time-ship-favicon.ico" type="image/x-icon">
+    <script src="https://kit.fontawesome.com/2753619c0b.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
@@ -64,7 +67,13 @@
     <audio src="sounds/memorymoon-space-blaster-plays.wav" id="laser-sound"></audio>
     <audio src="sounds/retro-space-explosion.wav" id="bomb-sound"></audio>
 
-    <script src="./index.js"></script>
+    <div class="toggle-mute-btn">
+        <div id="unmuted-music"><i class="fas fa-volume-up fa-fw" aria-hidden="true"> </i>theme music</div>
+        <div id="muted-music"><i class="fas fa-volume-mute fa-fw" aria-hidden="true"> </i>no music</div>
+    </div>
+
+
+    <script src="js/index.js"></script>
 </body>
 
 </html>

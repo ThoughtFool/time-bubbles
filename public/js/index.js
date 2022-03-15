@@ -4,17 +4,41 @@ if (window.addEventListener) {
     window.attachEvent('onload', playThemeMusic); //IE
 };
 
+const muteBtn = document.querySelector(".toggle-mute-btn");
+muteBtn.addEventListener("click", toggleSound, false);
+
+function toggleSound(e) {
+    let themeMusic = document.getElementById("theme-song");
+    
+    themeMusic.muted = !themeMusic.muted;
+    showMuted(themeMusic.muted);
+    e.preventDefault();
+}
+
+function showMuted (bool) {
+    const mutedMusicBtn = document.getElementById("muted-music");
+    const unmutedMusicBtn = document.getElementById("unmuted-music");
+
+    if (bool) {
+        mutedMusicBtn.style.display = "flex";
+        unmutedMusicBtn.style.display = "none";
+    } else {
+        mutedMusicBtn.style.display = "none";
+        unmutedMusicBtn.style.display = "flex";
+    }
+}
+
 function playThemeMusic() {
     let context = new AudioContext();
 
     let themeMusic = document.getElementById("theme-song");
-    let promise = themeMusic.play();
+    let promise = themeMusic.play(); 
     if (promise !== undefined) {
         promise.then(_ => {
             // Autoplay started!
         }).catch(error => {
             // Autoplay was prevented.
-            // Show a "Play" button so that user can start playback.
+            // TODO: Show a "Play" button so that user can start playback.
         });
     };
 
@@ -1242,15 +1266,27 @@ function launchSequence() {
 // testing event loop:
 function startGame() {
     let currentLevel = 0;
-
+    
     // get level from local storage?
     startBtn.style.display = "none";
-
+    
     afterLoading();
     gameArrays.updateLevel(currentLevel);
     gameArrays.displayMsg("show", "begin");
     // ("show", "end"):
+    
+    // TODO: add initial ammo counts based on enemy count per level?
+    // TODO: add randomBubble reinforcement drop:
+
+    for (let i = 0; i < 10; i++) {
+        gameArrays.updateAmmo("add", "laser");
+
+        // bomb limits inital count to max 5:
+        gameArrays.updateAmmo("add", "bomb");
+    }
+
     document.addEventListener("keydown", naviCtrl, false);
+
 };
 
 let levelLoop;
