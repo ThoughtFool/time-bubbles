@@ -1544,3 +1544,7 @@ function updateStats() {
     let lifeCount = document.getElementById("life-count");
     lifeCount.innerText = gameArrays.lives;
 };
+
+// TODO: remove inital display of launch button at start of game to reduce clicks:
+// "enterBtn" activates theme music through button client "click" event
+launchSequence();
