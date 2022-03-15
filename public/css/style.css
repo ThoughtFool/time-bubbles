@@ -59,6 +59,7 @@ body {
     color: whitesmoke;
     border-radius: 50%;
     position: absolute;
+    display: none;
     animation: shifty 2.5s ease-in-out infinite alternate,
         glow-frame 5s ease-in-out infinite alternate;
     cursor: pointer;
